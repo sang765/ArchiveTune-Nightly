@@ -35,7 +35,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Update version name for nightly build
-        run: sed -i 's/versionName = "12.4.6"/versionName = "N'$(date +%Y%m%d)'"/' app/build.gradle.kts
+        run: |
+          ORIGINAL_VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\(.*\)"/\1/')
+          NEW_VERSION="N$(date +%Y%m%d)"
+          sed -i "s/versionName = \"$ORIGINAL_VERSION\"/versionName = \"$NEW_VERSION\"/" app/build.gradle.kts
+          echo "Changed version from $ORIGINAL_VERSION to $NEW_VERSION"
 
       - name: Update app name and package for nightly build
         run: |
