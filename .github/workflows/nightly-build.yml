@@ -51,6 +51,9 @@ jobs:
       - name: Set default update channel to nightly
         run: sed -i 's/defaultValue = UpdateChannel.STABLE/defaultValue = UpdateChannel.NIGHTLY/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/UpdateScreen.kt
 
+      - name: Update about screen debug label to nightly
+        run: sed -i 's/text = "DEBUG"/text = "NIGHTLY"/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/AboutScreen.kt
+
       - name: Build nightly APKs
         run: ./gradlew assembleUniversalNightly
 
