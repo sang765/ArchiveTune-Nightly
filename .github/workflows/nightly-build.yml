@@ -41,11 +41,15 @@ jobs:
           sed -i "s/versionName = \"$ORIGINAL_VERSION\"/versionName = \"$NEW_VERSION\"/" app/build.gradle.kts
           echo "Changed version from $ORIGINAL_VERSION to $NEW_VERSION"
 
-      - name: Update app name and package for nightly build
+      - name: Update app name and package
         run: |
           sed -i 's/applicationIdSuffix = ".debug"/applicationIdSuffix = ".nightly"/' app/build.gradle.kts
-          sed -i 's/ArchiveTune/ArchiveTune Nightly/' app/src/debug/res/values/app_name.xml
+          sed -i 's/ArchiveTune Debug/ArchiveTune Nightly/' app/src/debug/res/values/app_name.xml
+          sed -i 's/ArchiveTune/ArchiveTune Nightly/' app/src/main/res/values/app_name.xml
           sed -i '/buildTypes {/a\    create("nightly") {\n        initWith(getByName("debug"))\n    }' app/build.gradle.kts
+
+      - name: Set default update channel to nightly
+        run: sed -i 's/defaultValue = UpdateChannel.STABLE/defaultValue = UpdateChannel.NIGHTLY/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/UpdateScreen.kt
 
       - name: Build nightly APKs
         run: ./gradlew assembleUniversalNightly
