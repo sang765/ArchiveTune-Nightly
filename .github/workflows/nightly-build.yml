@@ -32,19 +32,18 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Grant execute permission for gradlew
-        run: chmod +x ArchiveTune/gradlew
+        run: chmod +x gradlew
 
       - name: Update version name for nightly build
-        run: sed -i 's/versionName = "12.4.6"/versionName = "N'$(date +%Y%m%d)'"/' ArchiveTune/app/build.gradle.kts
+        run: sed -i 's/versionName = "12.4.6"/versionName = "N'$(date +%Y%m%d)'"/' app/build.gradle.kts
 
       - name: Update app name and package for nightly build
         run: |
-          sed -i 's/applicationIdSuffix = ".debug"/applicationIdSuffix = ".nightly"/' ArchiveTune/app/build.gradle.kts
-          sed -i 's/ArchiveTune Debug/ArchiveTune Nightly/' ArchiveTune/app/src/debug/res/values/app_name.xml
+          sed -i 's/applicationIdSuffix = ".debug"/applicationIdSuffix = ".nightly"/' app/build.gradle.kts
+          sed -i 's/ArchiveTune Debug/ArchiveTune Nightly/' app/src/debug/res/values/app_name.xml
 
       - name: Build debug APK
         run: ./gradlew assembleUniversalDebug
-        working-directory: ArchiveTune
 
       - name: Generate changelog
         run: git log --oneline --since="1 day ago" > changelog.txt
@@ -55,7 +54,7 @@ jobs:
         with:
           name: nightly-apk
           path: |
-            ArchiveTune/app/build/outputs/apk/universal/debug/*.apk
+            app/build/outputs/apk/universal/debug/*.apk
             changelog.txt
 
       - name: Notify on failure
