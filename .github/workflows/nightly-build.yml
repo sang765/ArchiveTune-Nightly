@@ -41,9 +41,10 @@ jobs:
         run: |
           sed -i 's/applicationIdSuffix = ".debug"/applicationIdSuffix = ".nightly"/' app/build.gradle.kts
           sed -i 's/ArchiveTune Debug/ArchiveTune Nightly/' app/src/debug/res/values/app_name.xml
+          sed -i '/buildTypes {/a\        nightly {\n            initWith debug\n        }' app/build.gradle.kts
 
-      - name: Build debug APK
-        run: ./gradlew assembleUniversalDebug
+      - name: Build nightly APKs
+        run: ./gradlew assembleArm64Nightly assembleArmeabiNightly assembleUniversalNightly
 
       - name: Generate changelog
         run: git log --oneline --since="1 day ago" > changelog.txt
@@ -52,9 +53,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: nightly-apk
+          name: nightly-apks
           path: |
-            app/build/outputs/apk/universal/debug/*.apk
+            app/build/outputs/apk/**/nightly/*.apk
             changelog.txt
 
       - name: Notify on failure
