@@ -12,6 +12,7 @@ jobs:
       - name: Checkout dev branch
         uses: actions/checkout@v4
         with:
+          repository: koiverse/ArchiveTune
           ref: dev
 
       - name: Set up JDK 21
