@@ -40,32 +40,14 @@ jobs:
       - name: Update app name and package for nightly build
         run: |
           sed -i 's/applicationIdSuffix = ".debug"/applicationIdSuffix = ".nightly"/' app/build.gradle.kts
-          sed -i 's/ArchiveTune Debug/ArchiveTune Nightly/' app/src/debug/res/values/app_name.xml
+          sed -i 's/ArchiveTune/ArchiveTune Nightly/' app/src/debug/res/values/app_name.xml
           sed -i '/buildTypes {/a\    create("nightly") {\n        initWith(getByName("debug"))\n    }' app/build.gradle.kts
 
       - name: Build nightly APKs
-        run: ./gradlew assembleArm64Nightly assembleArmeabiNightly assembleUniversalNightly
+        run: ./gradlew assembleUniversalNightly
 
       - name: Generate changelog
         run: git log --oneline --since="1 day ago" > changelog.txt
-
-      - name: Upload arm64 APK
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: nightly-apk-arm64
-          path: |
-            app/build/outputs/apk/arm64-v8a/nightly/*.apk
-            changelog.txt
-
-      - name: Upload armeabi APK
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: nightly-apk-armeabi
-          path: |
-            app/build/outputs/apk/armeabi-v7a/nightly/*.apk
-            changelog.txt
 
       - name: Upload universal APK
         uses: actions/upload-artifact@v4
