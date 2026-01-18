@@ -8,6 +8,7 @@
     pkgs.act
     pkgs.sdkmanager
     pkgs.docker
+    pkgs.systemd
     # pkgs.go
     # pkgs.python311
     # pkgs.python311Packages.pip
