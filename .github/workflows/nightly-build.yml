@@ -89,7 +89,7 @@ jobs:
         if: steps.check.outputs.skip == 'false'
         id: changelog
         run: |
-          CHANGELOG=$(git log --pretty=format:"- (%h): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
+          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
           echo "## Changelog" >> changelog.txt
           echo "" >> changelog.txt
           echo "$CHANGELOG" >> changelog.txt
