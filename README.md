@@ -8,7 +8,7 @@
 </div>
 
 > [!WARNING]
-> - This is **unofficial** Nightly build of AchieveTune. If you wanna download official AchiveTune, please check out this [repository](https://github.com/koiverse/ArchiveTune).
+> - This is **unofficial** Nightly build of AchieveTune. If you wanna download official ArchiveTune, please check out this [repository](https://github.com/koiverse/ArchiveTune).
 
 This repository contains the nightly build setup for ArchiveTune, an advanced YouTube Music client for Android.
 
