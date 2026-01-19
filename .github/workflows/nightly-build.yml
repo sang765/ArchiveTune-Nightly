@@ -79,7 +79,9 @@ jobs:
 
       - name: Update update check URLs for fork
         if: steps.check.outputs.skip == 'false'
-        run: sed -i 's/koiverse\/ArchiveTune/sang765\/ArchiveTune-Nightly/g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+        run: |
+          sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases|https://api.github.com/repos/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+          sed -i 's|https://github.com/koiverse/ArchiveTune/releases|https://github.com/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build nightly APKs
         if: steps.check.outputs.skip == 'false'
