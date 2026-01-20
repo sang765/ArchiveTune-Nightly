@@ -1,0 +1,41 @@
+name: Sync README
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run sync_readme.py
+        run: python sync_readme.py
+
+      - name: Check for changes and commit
+        run: |
+          if git diff --quiet README.md; then
+            echo "No changes to README.md"
+          else
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+            git add README.md
+            git commit -m "Sync README.md content from koiverse/ArchiveTune"
+            git push
+          fi
