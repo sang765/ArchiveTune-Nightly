@@ -50,7 +50,7 @@ jobs:
 
       - name: Grant execute permission for gradlew
         if: steps.check.outputs.skip == 'false'
-        run: chmod +x ArchiveTune/gradlew
+        run: chmod +x gradlew
 
       - name: Set up Python
         if: steps.check.outputs.skip == 'false'
@@ -92,7 +92,7 @@ jobs:
 
       - name: Build nightly APKs
         if: steps.check.outputs.skip == 'false'
-        run: cd ArchiveTune && ../gradlew assembleUniversalNightly
+        run: ./gradlew assembleUniversalNightly
 
       - name: Generate changelog
         if: steps.check.outputs.skip == 'false'
