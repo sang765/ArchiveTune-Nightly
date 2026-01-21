@@ -17,10 +17,27 @@ jobs:
           repository: koiverse/ArchiveTune
           ref: dev
 
+      - name: Add fork remote
+        run: git remote add fork https://github.com/${{ github.repository }}.git
+
+      - name: Fetch last SHA branch
+        run: git fetch fork last-nightly-sha || true
+
+      - name: Get last build SHA
+        id: last_sha
+        run: |
+          if git show-ref --verify --quiet refs/remotes/fork/last-nightly-sha; then
+            LAST_SHA=$(git show fork/last-nightly-sha:last-sha.txt)
+            echo "last_sha=$LAST_SHA" >> $GITHUB_OUTPUT
+          else
+            echo "No last SHA found, assuming first run"
+            echo "last_sha=" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check for new commits
         id: check
         run: |
-          COMMIT_COUNT=$(git log --oneline --since="1 day ago" | wc -l)
+          COMMIT_COUNT=$(git log --oneline ${{ steps.last_sha.outputs.last_sha }}..HEAD | wc -l)
           echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
           if [ "$COMMIT_COUNT" -eq 0 ]; then
             echo "No new commits, skipping build"
@@ -98,7 +115,7 @@ jobs:
         if: steps.check.outputs.skip == 'false'
         id: changelog
         run: |
-          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
+          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" ${{ steps.last_sha.outputs.last_sha }}..HEAD --no-merges)
           echo "## Changelog" >> changelog.txt
           echo "" >> changelog.txt
           echo "$CHANGELOG" >> changelog.txt
@@ -133,6 +150,18 @@ jobs:
             app/build/outputs/apk/universal/nightly/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update last build SHA
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          CURRENT_SHA=$(git rev-parse HEAD)
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git checkout -b last-nightly-sha || git checkout last-nightly-sha
+          echo "$CURRENT_SHA" > last-sha.txt
+          git add last-sha.txt
+          git commit -m "Update last nightly build SHA to $CURRENT_SHA" || true
+          git push fork last-nightly-sha
 
       - name: Notify on failure
         if: failure()
