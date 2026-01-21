@@ -92,7 +92,7 @@ jobs:
 
       - name: Build nightly APKs
         if: steps.check.outputs.skip == 'false'
-        run: cd ArchiveTune && ../gradlew assembleUniversalNightly
+        run: cd ArchiveTune && ./gradlew assembleUniversalNightly
 
       - name: Generate changelog
         if: steps.check.outputs.skip == 'false'
