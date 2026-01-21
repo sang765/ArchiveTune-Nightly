@@ -1,0 +1,42 @@
+name: Sync Git History
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Checkout ArchiveTune repository
+        uses: actions/checkout@v4
+        with:
+          repository: koiverse/ArchiveTune
+          ref: dev
+          path: ArchiveTune
+          fetch-depth: 0
+
+      - name: Sync git history
+        run: |
+          cd ArchiveTune
+          git remote add main-repo https://github.com/${{ github.repository }}
+          git fetch main-repo
+          git push main-repo dev:main --force
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "Sync git history from ArchiveTune"
+          git push
