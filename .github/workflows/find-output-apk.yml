@@ -90,7 +90,7 @@ jobs:
 
       - name: Build nightly APKs
         if: steps.check.outputs.skip == 'false'
-        run: cd ArchiveTune && ../gradlew assembleArm64Nightly assembleArmeabiNightly assembleUniversalNightly
+        run: cd ArchiveTune && ./gradlew assembleArm64Nightly assembleArmeabiNightly assembleUniversalNightly
 
       - name: Find APK files
         if: steps.check.outputs.skip == 'false'
