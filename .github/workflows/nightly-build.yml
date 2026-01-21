@@ -44,48 +44,55 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('ArchiveTune/**/*.gradle*', 'ArchiveTune/**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
       - name: Grant execute permission for gradlew
         if: steps.check.outputs.skip == 'false'
-        run: chmod +x gradlew
+        run: chmod +x ArchiveTune/gradlew
+
+      - name: Set up Python
+        if: steps.check.outputs.skip == 'false'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
       - name: Update version name for nightly build
         if: steps.check.outputs.skip == 'false'
         run: |
-          ORIGINAL_VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\(.*\)"/\1/')
+          ORIGINAL_VERSION=$(grep 'versionName = ' ArchiveTune/app/build.gradle.kts | sed 's/.*versionName = "\(.*\)"/\1/')
           NEW_VERSION="N$(date +%Y%m%d)"
-          sed -i "s/versionName = \"$ORIGINAL_VERSION\"/versionName = \"$NEW_VERSION\"/" app/build.gradle.kts
+          sed -i "s/versionName = \"$ORIGINAL_VERSION\"/versionName = \"$NEW_VERSION\"/" ArchiveTune/app/build.gradle.kts
           echo "Changed version from $ORIGINAL_VERSION to $NEW_VERSION"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Update app name and package
+      - name: Apply nightly patches
         if: steps.check.outputs.skip == 'false'
         run: |
-          sed -i 's/applicationIdSuffix = ".debug"/applicationIdSuffix = ".nightly"/' app/build.gradle.kts
-          sed -i 's/ArchiveTune Debug/ArchiveTune Nightly/' app/src/debug/res/values/app_name.xml
-          sed -i 's/ArchiveTune/ArchiveTune Nightly/' app/src/main/res/values/app_name.xml
-          sed -i '/buildTypes {/a\    create("nightly") {\n        initWith(getByName("debug"))\n    }' app/build.gradle.kts
+          # Create patches directory and copy files to modify
+          mkdir -p patches
+          cp ArchiveTune/app/build.gradle.kts patches/
+          cp ArchiveTune/app/src/debug/res/values/app_name.xml patches/
+          cp ArchiveTune/app/src/main/res/values/app_name.xml patches/
+          cp ArchiveTune/app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/UpdateScreen.kt patches/
+          cp ArchiveTune/app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/AboutScreen.kt patches/
+          cp ArchiveTune/app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt patches/
 
-      - name: Set default update channel to nightly
-        if: steps.check.outputs.skip == 'false'
-        run: sed -i 's/defaultValue = UpdateChannel.STABLE/defaultValue = UpdateChannel.NIGHTLY/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/UpdateScreen.kt
+          # Apply patches using the script
+          python scripts/apply_patch.py
 
-      - name: Update about screen debug label to nightly
-        if: steps.check.outputs.skip == 'false'
-        run: sed -i 's/text = "DEBUG"/text = "NIGHTLY"/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/AboutScreen.kt
-
-      - name: Update update check URLs for fork
-        if: steps.check.outputs.skip == 'false'
-        run: |
-          sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases|https://api.github.com/repos/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
-          sed -i 's|https://github.com/koiverse/ArchiveTune/releases|https://github.com/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+          # Copy modified files back
+          cp patches/build.gradle.kts ArchiveTune/app/
+          cp patches/app_name.xml ArchiveTune/app/src/debug/res/values/
+          cp patches/app_name.xml ArchiveTune/app/src/main/res/values/
+          cp patches/UpdateScreen.kt ArchiveTune/app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/
+          cp patches/AboutScreen.kt ArchiveTune/app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/
+          cp patches/Updater.kt ArchiveTune/app/src/main/kotlin/moe/koiverse/archivetune/utils/
 
       - name: Build nightly APKs
         if: steps.check.outputs.skip == 'false'
-        run: ./gradlew assembleUniversalNightly
+        run: cd ArchiveTune && ../gradlew assembleUniversalNightly
 
       - name: Generate changelog
         if: steps.check.outputs.skip == 'false'
@@ -123,7 +130,7 @@ jobs:
 
             ${{ steps.changelog.outputs.changelog }}
           files: |
-            app/build/outputs/apk/universal/nightly/*.apk
+            ArchiveTune/app/build/outputs/apk/universal/nightly/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
