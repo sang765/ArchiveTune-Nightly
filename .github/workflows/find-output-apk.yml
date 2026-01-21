@@ -1,8 +1,6 @@
 name: Find Output APK
 
 on:
-  repository_dispatch:
-    types: [trigger-nightly]
   workflow_dispatch:
 
 jobs:
