@@ -3,8 +3,9 @@
 
 # ArchiveTune Nightly
 
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?branch=main&style=for-the-badge&logo=github&label=Status)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml)   
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?branch=main&style=for-the-badge&logo=github&label=Status)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml)
 [![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/latest/total?style=for-the-badge&logo=Github&label=NIGHTLY%20DOWNLOAD&color=ff00ff)](https://github.com/sang765/ArchiveTune-Nightly/releases)
+<img src="images/badges/last-nightly-build.svg" alt="Last Nightly Build" style="height: 28px;">
 </div>
 
 > [!WARNING]
