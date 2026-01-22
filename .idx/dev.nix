@@ -14,6 +14,7 @@
     pkgs.temurin-bin-21
     pkgs.gh
     pkgs.gnupg
+    pkgs.bun
     # pkgs.go
     # pkgs.python311
     # pkgs.python311Packages.pip
