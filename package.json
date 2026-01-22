@@ -1,0 +1,1 @@
+{ "dependencies": { "canvas": "^3.2.1", "sharp": "^0.34.5", "skia-canvas": "^3.0.8" } }

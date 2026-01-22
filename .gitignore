@@ -116,4 +116,9 @@ dmypy.json
 # Kotlin custom patch
 scripts/*.kt
 
-# Test commit for GPG signing
+# Bun/NodeJS
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun.lockb
