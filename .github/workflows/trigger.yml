@@ -1,9 +1,7 @@
 name: Trigger Workflows
 
 on:
-  schedule:
-    - cron: '0 0 * * *'  # Daily at midnight UTC
-  workflow_dispatch:
+  workflow_dispatch: #Using https://console.cron-job.org
 
 jobs:
   trigger:
