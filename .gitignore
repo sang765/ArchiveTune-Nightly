@@ -115,3 +115,5 @@ dmypy.json
 
 # Kotlin custom patch
 scripts/*.kt
+
+# Test commit for GPG signing
