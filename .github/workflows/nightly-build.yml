@@ -17,28 +17,13 @@ jobs:
           repository: koiverse/ArchiveTune
           ref: dev
 
-      - name: Check for new commits
-        id: check
-        run: |
-          COMMIT_COUNT=$(git log --oneline --since="1 day ago" | wc -l)
-          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
-          if [ "$COMMIT_COUNT" -eq 0 ]; then
-            echo "No new commits, skipping build"
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "Found $COMMIT_COUNT new commits"
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Set up JDK 21
-        if: steps.check.outputs.skip == 'false'
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Cache Gradle packages
-        if: steps.check.outputs.skip == 'false'
         uses: actions/cache@v4
         with:
           path: |
@@ -49,11 +34,9 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Grant execute permission for gradlew
-        if: steps.check.outputs.skip == 'false'
         run: chmod +x gradlew
 
       - name: Update version name for nightly build
-        if: steps.check.outputs.skip == 'false'
         run: |
           ORIGINAL_VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\(.*\)"/\1/')
           NEW_VERSION="N$(date +%Y%m%d)"
@@ -62,7 +45,6 @@ jobs:
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Update app name and package
-        if: steps.check.outputs.skip == 'false'
         run: |
           sed -i 's/applicationIdSuffix = ".debug"/applicationIdSuffix = ".nightly"/' app/build.gradle.kts
           sed -i 's/ArchiveTune Debug/ArchiveTune Nightly/' app/src/debug/res/values/app_name.xml
@@ -70,15 +52,12 @@ jobs:
           sed -i '/buildTypes {/a\    create("nightly") {\n        initWith(getByName("debug"))\n    }' app/build.gradle.kts
 
       - name: Set default update channel to nightly
-        if: steps.check.outputs.skip == 'false'
         run: sed -i 's/defaultValue = UpdateChannel.STABLE/defaultValue = UpdateChannel.NIGHTLY/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/UpdateScreen.kt
 
       - name: Update about screen debug label to nightly
-        if: steps.check.outputs.skip == 'false'
         run: sed -i 's/text = "DEBUG"/text = "NIGHTLY"/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/AboutScreen.kt
 
       - name: Update update check URLs for fork
-        if: steps.check.outputs.skip == 'false'
         run: |
           sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases|https://api.github.com/repos/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
           sed -i 's|https://github.com/koiverse/ArchiveTune/releases|https://github.com/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
@@ -86,7 +65,6 @@ jobs:
           sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build nightly APKs
-        if: steps.check.outputs.skip == 'false'
         run: ./gradlew assembleUniversalNightly
         env:
           PULL_REQUEST: 'false'
@@ -95,7 +73,6 @@ jobs:
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
 
       - name: Generate changelog
-        if: steps.check.outputs.skip == 'false'
         id: changelog
         run: |
           CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
@@ -110,17 +87,14 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Get Date
-        if: steps.check.outputs.skip == 'false'
         id: date
         run: echo "date=$(date +'%Y/%m/%d')" >> $GITHUB_OUTPUT
 
       - name: Get Time
-        if: steps.check.outputs.skip == 'false'
         id: time
         run: echo "time=$(date +'%I:%M:%S %p')" >> $GITHUB_OUTPUT
 
       - name: Create nightly release
-        if: steps.check.outputs.skip == 'false'
         uses: softprops/action-gh-release@v2.5.0
         with:
           tag_name: ${{ env.NEW_VERSION }}
