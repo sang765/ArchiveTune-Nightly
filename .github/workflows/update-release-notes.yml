@@ -37,9 +37,12 @@ jobs:
 
       - name: Update release notes
         run: |
-          BODY="Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }} (UTC +0)**
+          BODY=$(cat << EOF
+          Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }} (UTC +0)**
 
-          ${{ steps.changelog.outputs.changelog }}"
+          ${{ steps.changelog.outputs.changelog }}
+          EOF
+          )
           gh release edit ${{ github.event.client_payload.new_version }} --notes "$BODY"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
