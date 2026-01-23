@@ -1,5 +1,5 @@
 <div align="center">
-<img width="150" height="150" src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" alt="Archivetune">
+<img width="150" height="150" src="https://raw.githubusercontent.com/sang765/ArchiveTune-Nightly/main/images/logo.gif" alt="Archivetune">
 
 # ArchiveTune Nightly
 
