@@ -47,13 +47,24 @@ function formatChangelog(commits: any[]): string {
 
 async function main() {
   try {
-    // Read history/commit.json
-    const historyData = readFileSync('history/commit.json', 'utf-8');
-    const history: History = JSON.parse(historyData);
-    const lastSha = history.commit.sha;
-    const repo = history.commit.repository; // e.g., "koiverse/ArchiveTune"
+    let lastSha: string;
+    let repo: string;
+    let branch: string;
+
+    if (process.env.LAST_SHA) {
+      lastSha = process.env.LAST_SHA;
+      repo = process.env.LAST_REPO || 'koiverse/ArchiveTune';
+      branch = process.env.LAST_BRANCH || 'dev';
+    } else {
+      // Read history/commit.json
+      const historyData = readFileSync('history/commit.json', 'utf-8');
+      const history: History = JSON.parse(historyData);
+      lastSha = history.commit.sha;
+      repo = history.commit.repository; // e.g., "koiverse/ArchiveTune"
+      branch = history.commit.branch; // e.g., "dev"
+    }
+
     const [owner, repoName] = repo.split('/');
-    const branch = history.commit.branch; // e.g., "dev"
 
     // Get the latest SHA from dev branch
     const latestSha = await fetchLatestSha(owner, repoName, branch);

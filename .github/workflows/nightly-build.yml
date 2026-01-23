@@ -135,6 +135,10 @@ jobs:
             cat changelog.md
             echo "EOF"
           } >> $GITHUB_OUTPUT
+        env:
+          LAST_SHA: ${{ steps.read_info.outputs.last_sha }}
+          LAST_REPO: ${{ steps.read_info.outputs.last_repo }}
+          LAST_BRANCH: dev
 
       - name: Get Date
         if: steps.check.outputs.skip == 'false'
