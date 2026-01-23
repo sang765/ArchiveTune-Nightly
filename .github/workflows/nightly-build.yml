@@ -175,7 +175,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-      - name: Update history in nightly repo
+      - name: Update history
         if: steps.check.outputs.skip == 'false'
         run: |
           LATEST_SHA=$(git rev-parse HEAD)
