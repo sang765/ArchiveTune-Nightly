@@ -74,6 +74,9 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
 
+      - name: Rename APK
+        run: mv app/build/outputs/apk/universal/nightly/*.apk app/build/outputs/apk/universal/nightly/ArchiveTune-Nightly.apk
+
       - name: Generate changelog
         id: changelog
         run: |
