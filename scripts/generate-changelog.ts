@@ -7,18 +7,8 @@ interface CommitInfo {
   branch: string;
 }
 
-interface ReleaseInfo {
-  title: string;
-  tag: string;
-  'release-at': string;
-  UTC: string;
-  repository: string;
-  branch: string;
-}
-
 interface History {
   commit: CommitInfo;
-  release: ReleaseInfo;
 }
 
 async function fetchLatestSha(owner: string, repo: string, branch: string): Promise<string> {
@@ -42,7 +32,7 @@ async function fetchCommits(owner: string, repo: string, sinceSha: string, until
 }
 
 function formatChangelog(commits: any[]): string {
-  let changelog = '# Changelog\n\n';
+  let changelog = '# ✨ Changelog\n\n';
   commits.forEach(commit => {
     const sha = commit.sha;
     let message = commit.commit.message.split('\n')[0]; // First line of commit message
@@ -50,7 +40,7 @@ function formatChangelog(commits: any[]): string {
     message = message.replace(/#(\d+)/g, '[#$1](https://github.com/koiverse/ArchiveTune/issues/$1)');
     const author = commit.commit.author.name;
     const date = new Date(commit.commit.author.date).toISOString().split('T')[0];
-    changelog += `- ${date}: [\`${sha.slice(0, 7)}\`](https://github.com/koiverse/ArchiveTune/commit/${sha}) - **${message}** by @${author}\n`;
+    changelog += `- [\`${sha.slice(0, 7)}\`](https://github.com/koiverse/ArchiveTune/commit/${sha}) - **${message}** by **@${author}**\n`;
   });
   return changelog;
 }

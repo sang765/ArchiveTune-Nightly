@@ -165,20 +165,19 @@ jobs:
       - name: Update history
         if: steps.check.outputs.skip == 'false'
         run: |
-          LATEST_SHA=$(git rev-parse HEAD)
+          LATEST_SHA=$(git rev-parse --short=7 HEAD)
           LATEST_MESSAGE=$(git log --oneline -1 | cut -d' ' -f2-)
           git clone https://${{ secrets.PAT_TOKEN }}@github.com/sang765/ArchiveTune-Nightly.git /tmp/nightly
           cd /tmp/nightly
           if [ ! -f history/commit.json ]; then
-            jq -n --arg sha "$LATEST_SHA" --arg msg "$LATEST_MESSAGE" '{commit: {repository: "koiverse/ArchiveTune", branch: "dev", sha: $sha, message: $msg}, release: {title: "${{ env.NEW_VERSION }}", tag: "${{ env.NEW_VERSION }}", "release-at": "${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }}", UTC: "0", repository: "sang765/ArchiveTune-Nightly", branch: "main"}}' > history/commit.json
+            jq -n --arg sha "$LATEST_SHA" --arg msg "$LATEST_MESSAGE" '{commit: {repository: "koiverse/ArchiveTune", branch: "dev", sha: $sha, message: $msg}}' > history/commit.json
           else
-            jq --arg sha "$LATEST_SHA" --arg msg "$LATEST_MESSAGE" '.commit.sha = $sha | .commit.message = $msg | .release.title = "${{ env.NEW_VERSION }}" | .release.tag = "${{ env.NEW_VERSION }}" | .release."release-at" = "${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }}" | .release.UTC = "0"' history/commit.json > history/commit_temp.json
+            jq --arg sha "$LATEST_SHA" --arg msg "$LATEST_MESSAGE" '.commit.sha = $sha | .commit.message = $msg' history/commit.json > history/commit_temp.json
             mv history/commit_temp.json history/commit.json
           fi
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add history/commit.json
-          RELEASE_REPO=$(jq -r '.release.repository' history/commit.json)
           git commit -m "Update history/commit.json after nightly release https://github.com/sang765/ArchiveTune-Nightly/releases/tag/${{ env.NEW_VERSION }}"
           git push
 
