@@ -32,7 +32,7 @@ async function fetchCommits(owner: string, repo: string, sinceSha: string, until
 }
 
 function formatChangelog(commits: any[]): string {
-  let changelog = '# ✨ Changelog\n\n';
+  let changelog = '## ✨ Changelog\n\n';
   commits.forEach(commit => {
     const sha = commit.sha;
     let message = commit.commit.message.split('\n')[0]; // First line of commit message
