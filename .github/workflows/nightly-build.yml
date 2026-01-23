@@ -20,15 +20,21 @@ jobs:
       - name: Check for new commits
         id: check
         run: |
-          LAST_SHA=$(jq -r '.commit.sha' history/commit.json)
-          COMMIT_COUNT=$(git log --oneline $LAST_SHA..HEAD | wc -l)
-          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
-          if [ "$COMMIT_COUNT" -eq 0 ]; then
-            echo "No new commits since $LAST_SHA, skipping build"
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "Found $COMMIT_COUNT new commits since $LAST_SHA"
+          if [ ! -f history/commit.json ]; then
+            echo "history/commit.json not found, assuming first run"
+            echo "commit_count=1" >> $GITHUB_OUTPUT
             echo "skip=false" >> $GITHUB_OUTPUT
+          else
+            LAST_SHA=$(jq -r '.commit.sha' history/commit.json)
+            COMMIT_COUNT=$(git log --oneline $LAST_SHA..HEAD | wc -l)
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+            if [ "$COMMIT_COUNT" -eq 0 ]; then
+              echo "No new commits since $LAST_SHA, skipping build"
+              echo "skip=true" >> $GITHUB_OUTPUT
+            else
+              echo "Found $COMMIT_COUNT new commits since $LAST_SHA"
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - name: Set up JDK 21
@@ -103,11 +109,19 @@ jobs:
         if: steps.check.outputs.skip == 'false'
         id: changelog
         run: |
-          COMMIT_SHA=$(jq -r '.commit.sha' history/commit.json)
-          COMMIT_MESSAGE=$(jq -r '.commit.message' history/commit.json)
-          COMMIT_REPO=$(jq -r '.commit.repository' history/commit.json)
-          COMMIT_AUTHOR=$(git show --format="%an" --no-patch $COMMIT_SHA)
-          CHANGELOG="- ([$COMMIT_SHA](https://github.com/$COMMIT_REPO/commit/$COMMIT_SHA)): **\"$COMMIT_MESSAGE\"** by **@$COMMIT_AUTHOR**"
+          if [ ! -f history/commit.json ]; then
+            COMMIT_SHA=$(git rev-parse HEAD)
+            COMMIT_MESSAGE="Initial nightly build"
+            COMMIT_REPO="koiverse/ArchiveTune"
+            COMMIT_AUTHOR=$(git show --format="%an" --no-patch $COMMIT_SHA)
+            CHANGELOG="- ([$COMMIT_SHA](https://github.com/$COMMIT_REPO/commit/$COMMIT_SHA)): **\"$COMMIT_MESSAGE\"** by **@$COMMIT_AUTHOR**"
+          else
+            COMMIT_SHA=$(jq -r '.commit.sha' history/commit.json)
+            COMMIT_MESSAGE=$(jq -r '.commit.message' history/commit.json)
+            COMMIT_REPO=$(jq -r '.commit.repository' history/commit.json)
+            COMMIT_AUTHOR=$(git show --format="%an" --no-patch $COMMIT_SHA)
+            CHANGELOG="- ([$COMMIT_SHA](https://github.com/$COMMIT_REPO/commit/$COMMIT_SHA)): **\"$COMMIT_MESSAGE\"** by **@$COMMIT_AUTHOR**"
+          fi
           echo "## Changelog" >> changelog.txt
           echo "" >> changelog.txt
           echo "$CHANGELOG" >> changelog.txt
@@ -149,8 +163,12 @@ jobs:
         run: |
           LATEST_SHA=$(git rev-parse HEAD)
           LATEST_MESSAGE=$(git log --oneline -1 | cut -d' ' -f2-)
-          jq --arg sha "$LATEST_SHA" --arg msg "$LATEST_MESSAGE" '.commit.sha = $sha | .commit.message = $msg | .release.title = "${{ env.NEW_VERSION }}" | .release.tag = "${{ env.NEW_VERSION }}" | .release."release-at" = "${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }}" | .release.UTC = "0"' history/commit.json > history/commit_temp.json
-          mv history/commit_temp.json history/commit.json
+          if [ ! -f history/commit.json ]; then
+            jq -n --arg sha "$LATEST_SHA" --arg msg "$LATEST_MESSAGE" '{commit: {repository: "koiverse/ArchiveTune", branch: "dev", sha: $sha, message: $msg}, release: {title: "${{ env.NEW_VERSION }}", tag: "${{ env.NEW_VERSION }}", "release-at": "${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }}", UTC: "0", repository: "sang765/ArchiveTune-Nightly", branch: "main"}}' > history/commit.json
+          else
+            jq --arg sha "$LATEST_SHA" --arg msg "$LATEST_MESSAGE" '.commit.sha = $sha | .commit.message = $msg | .release.title = "${{ env.NEW_VERSION }}" | .release.tag = "${{ env.NEW_VERSION }}" | .release."release-at" = "${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }}" | .release.UTC = "0"' history/commit.json > history/commit_temp.json
+            mv history/commit_temp.json history/commit.json
+          fi
           RELEASE_REPO=$(jq -r '.release.repository' history/commit.json)
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
