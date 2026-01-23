@@ -11,6 +11,10 @@
 > [!WARNING]
 > - This is **unofficial** Nightly build of AchieveTune. If you wanna download official ArchiveTune, please check out this [repository](https://github.com/koiverse/ArchiveTune).
 
+| Stable | Nightly |
+|----------|---------|
+| <div align="center"> [![GitHub downloads](https://img.shields.io/github/downloads/koiverse/ArchiveTune/latest/total?label=Latest%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/koiverse/ArchiveTune/releases/latest) [![GitHub downloads](https://img.shields.io/github/downloads/koiverse/ArchiveTune/total?label=Total%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/koiverse/ArchiveTune/releases) [![Stable build](https://img.shields.io/github/actions/workflow/status/koiverse/ArchiveTune/release.yml?labelColor=27303D&label=Stable&labelColor=06599d&color=043b69)](https://github.com/koiverse/ArchiveTune/actions/workflows/release.yml) | <div align="center"> [![GitHub downloads](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/latest/total?label=Latest%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![GitHub downloads](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?label=Total%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/sang765/ArchiveTune-Nightly/releases) [![Preview build](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?labelColor=27303D&label=Nightly&labelColor=2c2c47&color=1c1c39)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml) |
+
 This repository contains the nightly build setup for ArchiveTune, an advanced YouTube Music client for Android. Click bellow to read more about this app.
 
 <details>
@@ -62,5 +66,7 @@ This project is set up for development in Firebase Studio (IDX) with Nix environ
 
 </div>
 
-- [ArchiveTune Main Repository](https://github.com/koiverse/ArchiveTune)
+- Latest dev build in **ArchiveTune** repository:  
+  [![Latest Dev Branch Workflow Build](https://img.shields.io/github/actions/workflow/status/koiverse/ArchiveTune/build.yml?branch=dev&style=for-the-badge&logo=githubactions&logoColor=ffffff&label=Last%20DEV%20Build&labelColor=1e1e2e&color=6366f1)](https://github.com/koiverse/ArchiveTune/actions/workflows/build.yml?query=branch%3Adev)
+- [ArchiveTune Repository](https://github.com/koiverse/ArchiveTune)
 - [Firebase Studio Documentation](https://developers.google.com/idx/guides/customize-idx-env)
