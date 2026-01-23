@@ -1,13 +1,11 @@
 name: Update Release Notes
 
 on:
-  workflow_run:
-    workflows: ["Nightly Build"]
-    types: [completed]
+  repository_dispatch:
+    types: [update-release-notes]
 
 jobs:
   update:
-    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -42,7 +40,7 @@ jobs:
           BODY="Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }} (UTC +0)**
 
           ${{ steps.changelog.outputs.changelog }}"
-          gh release edit ${{ github.event.workflow_run.outputs.new_version }} --notes "$BODY"
+          gh release edit ${{ github.event.client_payload.new_version }} --notes "$BODY"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
