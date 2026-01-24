@@ -3,8 +3,6 @@ name: Check for Updates
 on:
   repository_dispatch:
     types: [check-for-update]
-  # Thêm cái này để bạn có thể test thủ công dễ dàng
-  workflow_dispatch:
 
 jobs:
   check:
