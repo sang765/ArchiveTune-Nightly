@@ -4,8 +4,10 @@
 # <img width="30" height="30" src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" alt="Archivetune"> ArchiveTune Nightly <img width="30" height="30" src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" alt="Archivetune">
 
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?branch=main&style=for-the-badge&logo=github&label=Status)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml)
-[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/latest/total?style=for-the-badge&logo=Github&label=NIGHTLY%20DOWNLOAD&color=ff00ff)](https://github.com/sang765/ArchiveTune-Nightly/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/sang765/ArchiveTune-Nightly?style=for-the-badge&color=6366f1&labelColor=1e1e2e&logo=github)](https://github.com/sang765/ArchiveTune-Nightly)
+[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?style=for-the-badge&logo=Github&label=NIGHTLY%20DOWNLOAD&color=ff00ff)](https://github.com/sang765/ArchiveTune-Nightly/releases)  
 <img src="images/badges/last-nightly-build.svg" alt="Last Nightly Build" style="height: 28px;">
+
 </div>
 
 > [!WARNING]
