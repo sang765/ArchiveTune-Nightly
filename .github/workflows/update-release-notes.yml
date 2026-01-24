@@ -45,7 +45,7 @@ jobs:
           ${{ steps.changelog.outputs.changelog }}
           
           > [!NOTE]  
-          > If this version broken something, please react ⚠️ in this release. Thank you.
+          > If this version broken something, please react 👀 in this release. Thank you.
           EOF
           )
           
