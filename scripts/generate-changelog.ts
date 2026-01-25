@@ -48,7 +48,7 @@ function formatChangelog(commits: any[]): string {
 
     const date = new Date(commit.commit.author.date).toISOString().split('T')[0];
 
-    changelog += `- ${date}: [\`${sha.slice(0, 7)}\`](https://github.com/koiverse/ArchiveTune/commit/${sha}) - **${message}** by @${author}\n`;
+    changelog += `- <code>${date}</code>: [<code>${sha.slice(0, 7)}</code>](https://github.com/koiverse/ArchiveTune/commit/${sha}) - **"${message}"** by @${author}\n`;
   });
   return changelog;
 }
