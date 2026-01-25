@@ -8,7 +8,7 @@ def fetch_content(url):
         response.raise_for_status()
         return response.text
     except requests.exceptions.RequestException as e:
-        print(f"Lỗi khi tải {url}: {e}")
+        print(f"Loading error {url}: {e}")
         return None
 
 def main():
