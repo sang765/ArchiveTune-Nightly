@@ -67,7 +67,13 @@ jobs:
           sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build nightly APKs
-        run: ./gradlew assembleUniversalNightly
+        run: |
+         DATE=$(date +%Y%m%d)
+
+         ./gradlew assembleUniversalNightly \
+         -Pandroid.injected.application.id=com.koiverse.archivetune.nightly \
+         -Pandroid.injected.version.code=$DATE \
+         -Pandroid.injected.version.name=N$DATE
         env:
           PULL_REQUEST: 'false'
           GITHUB_EVENT_NAME: ${{ github.event_name }}
