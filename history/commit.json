@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "4bbcff52b781654db4964c7b56ebc7f50992853d",
-    "message": "style(YearInMusic): remove unused imports"
+    "sha": "1a8c55463880b47454492514090738c670c67ce7",
+    "message": "chore: remove redundant kotlin.android plugin from gradle files"
   }
 }
