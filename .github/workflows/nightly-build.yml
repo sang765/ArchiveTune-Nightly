@@ -14,26 +14,21 @@ jobs:
       new_version: ${{ env.NEW_VERSION }}
     steps:
       - name: Checkout dev branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: koiverse/ArchiveTune
           ref: dev
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
+      - name: Set Up Gradle
+        uses: gradle/actions/setup-gradle@v4
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          cache-cleanup: on-success
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -67,13 +62,7 @@ jobs:
           sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build nightly APKs
-        run: |
-         DATE=$(date +%Y%m%d)
-
-         ./gradlew assembleUniversalNightly \
-         -Pandroid.injected.application.id=com.koiverse.archivetune.nightly \
-         -Pandroid.injected.version.code=$DATE \
-         -Pandroid.injected.version.name=N$DATE
+        run: ./gradlew assembleUniversalDebug
         env:
           PULL_REQUEST: 'false'
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -81,7 +70,7 @@ jobs:
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
 
       - name: Rename APK
-        run: mv app/build/outputs/apk/universal/nightly/*.apk app/build/outputs/apk/universal/nightly/ArchiveTune-Nightly.apk
+        run: mv app/build/outputs/apk/universal/debug/*.apk app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
 
       - name: Generate changelog
         id: changelog
@@ -115,7 +104,7 @@ jobs:
 
             ${{ steps.changelog.outputs.changelog }}
           files: |
-            app/build/outputs/apk/universal/nightly/*.apk
+            app/build/outputs/apk/universal/debug/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
