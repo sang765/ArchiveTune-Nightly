@@ -1,8 +1,34 @@
 name: Update Release Notes
 
+# Changelog generation supports two engines:
+# - typescript (default): Uses Bun to run scripts/generate-changelog.ts
+# - kotlin: Uses Kotlin to run scripts/generate-changelog.main.kts
 on:
   repository_dispatch:
     types: [update-release-notes]
+    inputs:
+      changelog_engine:
+        description: 'Changelog generation engine'
+        required: false
+        default: 'typescript'
+        type: choice
+        options:
+          - typescript
+          - kotlin
+  workflow_dispatch:
+    inputs:
+      changelog_engine:
+        description: 'Changelog generation engine'
+        required: false
+        default: 'typescript'
+        type: choice
+        options:
+          - typescript
+          - kotlin
+
+env:
+  # Set changelog engine from input, default to typescript
+  CHANGELOG_ENGINE: ${{ github.event.client_payload.changelog_engine || 'typescript' }}
 
 jobs:
   update:
@@ -15,11 +41,36 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
+      # Setup Bun for TypeScript changelog generation (runs when engine is typescript)
       - name: Setup Bun
+        if: env.CHANGELOG_ENGINE == 'typescript'
         uses: oven-sh/setup-bun@v1
 
-      - name: Generate changelog
+      # Setup Java for Kotlin changelog generation (runs when engine is kotlin)
+      - name: Setup Java
+        if: env.CHANGELOG_ENGINE == 'kotlin'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # Setup Kotlin for Kotlin changelog generation (runs when engine is kotlin)
+      - name: Setup Kotlin
+        if: env.CHANGELOG_ENGINE == 'kotlin'
+        run: |
+          # Install Kotlin compiler manually using SDKMAN or download directly
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install kotlin 1.9.24
+          echo "$HOME/.sdkman/candidates/kotlin/current/bin" >> $GITHUB_PATH
+
+      - name: Generate changelog (TypeScript)
+        if: env.CHANGELOG_ENGINE == 'typescript'
         run: bun run scripts/generate-changelog.ts
+
+      - name: Generate changelog (Kotlin)
+        if: env.CHANGELOG_ENGINE == 'kotlin'
+        run: kotlinc -script scripts/generate-changelog.main.kts
 
       - name: Get Date
         id: date
