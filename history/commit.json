@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "1a8c55463880b47454492514090738c670c67ce7",
-    "message": "chore: remove redundant kotlin.android plugin from gradle files"
+    "sha": "23f935d583cf0b01bec75b8a0f6fd7cd1fb09708",
+    "message": "Merge pull request #248 from koiverse/renovate/kotlin-monorepo\n\nUpdate kotlin monorepo to v2.3.0"
   }
 }
