@@ -69,6 +69,19 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
 
+      - name: Sign APK
+        uses: ilharp/sign-android-release@v2.0.0
+        with:
+          releaseDir: app/build/outputs/apk/universal/debug/
+          signingKey: ${{ secrets.KEYSTORE }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          buildToolsVersion: 35.0.0
+
+      - name: Remove unsigned APK
+        run: rm app/build/outputs/apk/universal/debug/app-universal-debug.apk
+
       - name: Rename APK
         run: mv app/build/outputs/apk/universal/debug/*.apk app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
 
