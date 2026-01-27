@@ -46,13 +46,23 @@ jobs:
         if: env.CHANGELOG_ENGINE == 'typescript'
         uses: oven-sh/setup-bun@v1
 
-      # Setup Kotlin for Kotlin changelog generation (runs when engine is kotlin)
-      - name: Setup Kotlin
+      # Setup Java for Kotlin changelog generation (runs when engine is kotlin)
+      - name: Setup Java
         if: env.CHANGELOG_ENGINE == 'kotlin'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
+
+      # Setup Kotlin for Kotlin changelog generation (runs when engine is kotlin)
+      - name: Setup Kotlin
+        if: env.CHANGELOG_ENGINE == 'kotlin'
+        run: |
+          # Install Kotlin compiler manually using SDKMAN or download directly
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install kotlin 1.9.24
+          echo "$HOME/.sdkman/candidates/kotlin/current/bin" >> $GITHUB_PATH
 
       - name: Generate changelog (TypeScript)
         if: env.CHANGELOG_ENGINE == 'typescript'
