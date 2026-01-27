@@ -50,18 +50,45 @@ fun fetchLatestSha(owner: String, repo: String, branch: String): String {
     val url = "https://api.github.com/repos/$owner/$repo/branches/$branch"
     val json = fetch(url)
     val data = gson.fromJson(json, JsonObject::class.java)
-    return data.getAsJsonObject("commit").get("sha").asString
+    
+    if (!data.has("commit") || data.get("commit").isJsonNull) {
+        throw RuntimeException("No 'commit' field in branch API response for $owner/$repo/$branch")
+    }
+    
+    val commitObj = data.getAsJsonObject("commit")
+    if (!commitObj.has("sha") || commitObj.get("sha").isJsonNull) {
+        throw RuntimeException("No 'sha' field in commit object for $owner/$repo/$branch")
+    }
+    
+    return commitObj.get("sha").asString
 }
 
 fun fetchCommits(owner: String, repo: String, sinceSha: String, untilSha: String): JsonArray {
     val url = "https://api.github.com/repos/$owner/$repo/compare/$sinceSha...$untilSha"
     val json = fetch(url)
     val data = gson.fromJson(json, JsonObject::class.java)
-    return data.getAsJsonArray("commits") ?: JsonArray()
+    
+    if (!data.has("commits")) {
+        println("Warning: No 'commits' field in API response")
+        return JsonArray()
+    }
+    
+    val commits = data.get("commits")
+    if (commits.isJsonNull) {
+        println("Warning: 'commits' field is null in API response")
+        return JsonArray()
+    }
+    
+    return commits.asJsonArray
 }
 
 fun formatChangelog(commits: JsonArray): String {
     val sb = StringBuilder("## ✨ Changelog\n\n")
+    
+    // Check if commits is empty
+    if (commits.size() == 0) {
+        return "## ✨ Changelog\n\nNo new commits found."
+    }
     
     // The GitHub API returns the commit order from oldest to newest in the compare view.
     // We reverse the order to display the newest commit at the top.
@@ -72,35 +99,97 @@ fun formatChangelog(commits: JsonArray): String {
         .withZone(ZoneId.of("UTC")) // Timezone
 
     for (commit in commitList) {
-        val sha = commit.get("sha").asString
-        val commitDetails = commit.getAsJsonObject("commit")
-        
-        // Get the first line of the commit message
-        var message = commitDetails.get("message").asString.split("\n")[0]
-        
-        // Replace issue number #123 with the link
-        val issueRegex = "#(\\d+)".toRegex()
-        message = issueRegex.replace(message) { matchResult ->
-            val number = matchResult.groupValues[1]
-            "[#$number](https://github.com/koiverse/ArchiveTune/issues/$number)"
+        try {
+            // Safely get SHA
+            if (!commit.has("sha") || commit.get("sha").isJsonNull) {
+                println("Warning: Commit without SHA found, skipping")
+                continue
+            }
+            val sha = commit.get("sha").asString
+            
+            // Safely get commit details
+            if (!commit.has("commit") || commit.get("commit").isJsonNull) {
+                println("Warning: Commit without details found (SHA: $sha), skipping")
+                continue
+            }
+            val commitDetails = commit.getAsJsonObject("commit")
+            
+            // Get the first line of the commit message with null check
+            if (!commitDetails.has("message") || commitDetails.get("message").isJsonNull) {
+                println("Warning: Commit without message (SHA: $sha), skipping")
+                continue
+            }
+            var message = commitDetails.get("message").asString
+            if (message.isEmpty()) {
+                message = "(no message)"
+            } else {
+                message = message.split("\n")[0]
+            }
+            
+            // Replace issue number #123 with the link
+            val issueRegex = "#(\\d+)".toRegex()
+            message = issueRegex.replace(message) { matchResult ->
+                val number = matchResult.groupValues[1]
+                "[#$number](https://github.com/koiverse/ArchiveTune/issues/$number)"
+            }
+
+            // Get author information (preferably GitHub login, fallback to Git username)
+            val author = try {
+                if (commit.has("author") && !commit.get("author").isJsonNull) {
+                    val authorObj = commit.getAsJsonObject("author")
+                    if (authorObj.has("login") && !authorObj.get("login").isJsonNull) {
+                        authorObj.get("login").asString
+                    } else {
+                        // Fallback to commit details author
+                        getCommitAuthorName(commitDetails)
+                    }
+                } else {
+                    getCommitAuthorName(commitDetails)
+                }
+            } catch (e: Exception) {
+                println("Warning: Error getting author for commit $sha: ${e.message}")
+                "Unknown"
+            }
+
+            // Format date and time
+            val date = try {
+                if (!commitDetails.has("author") || commitDetails.get("author").isJsonNull) {
+                    "Unknown Date"
+                } else {
+                    val commitAuthor = commitDetails.getAsJsonObject("author")
+                    if (!commitAuthor.has("date") || commitAuthor.get("date").isJsonNull) {
+                        "Unknown Date"
+                    } else {
+                        val dateStr = commitAuthor.get("date").asString
+                        dateFormatter.format(Instant.parse(dateStr))
+                    }
+                }
+            } catch (e: Exception) {
+                println("Warning: Error parsing date for commit $sha: ${e.message}")
+                "Unknown Date"
+            }
+
+            // Create log line
+            sb.append("- <code>$date</code>: [<code>${sha.take(7)}</code>](https://github.com/koiverse/ArchiveTune/commit/$sha) - **\"$message\"** by @$author\n")
+        } catch (e: Exception) {
+            println("Warning: Error processing commit: ${e.message}")
+            e.printStackTrace()
+            continue
         }
-
-        // Get author information (preferably GitHub login, fallback to Git username)
-        val author = if (commit.has("author") && !commit.get("author").isJsonNull) {
-            commit.getAsJsonObject("author").get("login").asString
-        } else {
-            commitDetails.getAsJsonObject("author").get("name").asString
-        }
-
-        // Format date and time
-        val dateStr = commitDetails.getAsJsonObject("author").get("date").asString
-        val date = dateFormatter.format(Instant.parse(dateStr))
-
-        // Create log line
-        sb.append("- <code>$date</code>: [<code>${sha.take(7)}</code>](https://github.com/koiverse/ArchiveTune/commit/$sha) - **\"$message\"** by @$author\n")
     }
     
     return sb.toString()
+}
+
+fun getCommitAuthorName(commitDetails: JsonObject): String {
+    if (!commitDetails.has("author") || commitDetails.get("author").isJsonNull) {
+        return "Unknown"
+    }
+    val authorObj = commitDetails.getAsJsonObject("author")
+    if (!authorObj.has("name") || authorObj.get("name").isJsonNull) {
+        return "Unknown"
+    }
+    return authorObj.get("name").asString
 }
 
 // --- Main Execution ---
@@ -113,6 +202,7 @@ fun main() {
 
         // 1. Check environment variables first
         if (System.getenv("LAST_SHA") != null) {
+            println("Reading commit info from environment variables...")
             lastSha = System.getenv("LAST_SHA")
             repoPath = System.getenv("LAST_REPO") ?: "koiverse/ArchiveTune"
             branch = System.getenv("LAST_BRANCH") ?: "dev"
@@ -122,58 +212,106 @@ fun main() {
             
             // Check the GITHUB_ACTIONS environment variable to ensure the logic matches the old file.
             if (System.getenv("GITHUB_ACTIONS") != null) {
+                println("Reading commit info from history/commit.json...")
                 if (historyFile.exists()) {
                     try {
                         val historyData = historyFile.readText()
+                        if (historyData.trim().isEmpty()) {
+                            System.err.println("Error: history/commit.json is empty")
+                            exitProcess(1)
+                        }
                         val history = gson.fromJson(historyData, History::class.java)
+                        
+                        if (history == null || history.commit == null) {
+                            System.err.println("Error: Invalid history file structure")
+                            exitProcess(1)
+                        }
+                        
                         lastSha = history.commit.sha
                         repoPath = history.commit.repository
                         branch = history.commit.branch
+                        
+                        println("Last commit: $lastSha")
+                        println("Repository: $repoPath")
+                        println("Branch: $branch")
                     } catch (e: Exception) {
-                        println("History file found but invalid, skipping...")
-                        return
+                        System.err.println("Error: Failed to parse history/commit.json - ${e.message}")
+                        e.printStackTrace()
+                        exitProcess(1)
                     }
                 } else {
-                    println("History file not found.")
-                    return
+                    System.err.println("Error: history/commit.json file not found")
+                    exitProcess(1)
                 }
             } else {
                 // Fallback for local developers if needed.
+                println("Not running in GitHub Actions, skipping changelog generation")
                 return
             }
         }
 
         // Unwrap nullable values
         if (lastSha == null || repoPath == null || branch == null) {
-            println("Missing required information (SHA/Repo/Branch). Exiting.")
-            return
+            System.err.println("Error: Missing required information (SHA/Repo/Branch)")
+            exitProcess(1)
         }
 
+        // Validate repository path format
+        if (!repoPath.contains("/")) {
+            System.err.println("Error: Invalid repository path format: $repoPath (expected: owner/repo)")
+            exitProcess(1)
+        }
+        
         val (owner, repoName) = repoPath.split("/")
         
         // Get the latest SHA from remote
-        val latestSha = fetchLatestSha(owner, repoName, branch)
+        println("Fetching latest commit from GitHub API...")
+        val latestSha = try {
+            fetchLatestSha(owner, repoName, branch)
+        } catch (e: Exception) {
+            System.err.println("Error: Failed to fetch latest SHA from GitHub - ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
 
         println("Comparing from $lastSha to $latestSha")
 
         // If there are no changes
         if (lastSha == latestSha) {
-            println("No new commits.")
+            println("No new commits found.")
             File("changelog.md").writeText("No new changes.")
             return
         }
 
         // Get the commit list and create a changelog.
-        val commits = fetchCommits(owner, repoName, lastSha, latestSha)
+        println("Fetching commits from GitHub API...")
+        val commits = try {
+            fetchCommits(owner, repoName, lastSha, latestSha)
+        } catch (e: Exception) {
+            System.err.println("Error: Failed to fetch commits from GitHub - ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
+        
+        println("Found ${commits.size()} commit(s)")
+        
+        println("Formatting changelog...")
         val changelog = formatChangelog(commits)
         
-        File("changelog.md").writeText(changelog)
-        println("Changelog generated: changelog.md")
+        println("Writing changelog to file...")
+        try {
+            File("changelog.md").writeText(changelog)
+            println("✅ Changelog generated successfully: changelog.md")
+        } catch (e: Exception) {
+            System.err.println("Error: Failed to write changelog.md - ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
 
     } catch (e: Exception) {
-        System.err.println("Error generating changelog: ${e.message}")
+        System.err.println("Error: Unexpected error generating changelog - ${e.message}")
         e.printStackTrace()
-        exitProcess(1) // Báo lỗi cho GitHub Actions biết để fail job
+        exitProcess(1)
     }
 }
 
