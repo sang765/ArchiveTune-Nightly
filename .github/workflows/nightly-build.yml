@@ -36,23 +36,15 @@ jobs:
 
       - name: Update version name and code for nightly build
         run: |
-          # original values
           ORIGINAL_VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\(.*\)"/\1/')
           ORIGINAL_VERSION_CODE=$(grep 'versionCode = ' app/build.gradle.kts | head -n1 | sed 's/.*versionCode = \(.*\)/\1/' | tr -d '[:space:]')
-
-          # new versionName (prefix N + YYYYMMDD)
           NEW_VERSION="N$(date +%Y%m%d)"
-
-          # prefer CI build number; fallback to date if not available
           NEW_VERSION_CODE="${GITHUB_RUN_NUMBER}"
           if [ -z "$NEW_VERSION_CODE" ]; then
             NEW_VERSION_CODE=$(date +%Y%m%d)
           fi
-
-          # apply replacements
           sed -i "s/versionName = \"$ORIGINAL_VERSION\"/versionName = \"$NEW_VERSION\"/" app/build.gradle.kts
           sed -i "s/versionCode = $ORIGINAL_VERSION_CODE/versionCode = $NEW_VERSION_CODE/" app/build.gradle.kts
-
           echo "Changed version from $ORIGINAL_VERSION ($ORIGINAL_VERSION_CODE) to $NEW_VERSION ($NEW_VERSION_CODE)"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "NEW_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
@@ -72,7 +64,7 @@ jobs:
 
       - name: Update update check URLs for fork
         run: |
-          sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases|https://api.github.com/repos/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/U[...]
+          sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases|https://api.github.com/repos/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
           sed -i 's|https://github.com/koiverse/ArchiveTune/releases|https://github.com/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
           sed -i 's/ArchiveTune.apk/ArchiveTune-Nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
           sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
@@ -85,8 +77,80 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
 
-      - name: Rename APK
-        run: mv app/build/outputs/apk/universal/debug/*.apk app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
+      - name: Restore signing keystore
+        env:
+          NIGHTLY_KEYSTORE_B64: ${{ secrets.KEYSTORE }}
+        run: |
+          if [ -z "$NIGHTLY_KEYSTORE_B64" ]; then
+            echo "NIGHTLY_KEYSTORE_B64 secret is empty or not set — skipping keystore restore"
+          else
+            echo "$NIGHTLY_KEYSTORE_B64" | base64 --decode > keystore.jks
+            ls -lh keystore.jks
+          fi
+
+      - name: Locate apksigner and zipalign (set env)
+        run: |
+          # Try system path first, then try common Android SDK locations
+          if command -v apksigner >/dev/null 2>&1; then
+            APKSIGNER_PATH=$(command -v apksigner)
+          else
+            ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}
+            APKSIGNER_PATH=$(find "$ANDROID_HOME" -type f -name apksigner 2>/dev/null | head -n1 || true)
+          fi
+          if command -v zipalign >/dev/null 2>&1; then
+            ZIPALIGN_PATH=$(command -v zipalign)
+          else
+            ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}
+            ZIPALIGN_PATH=$(find "$ANDROID_HOME" -type f -name zipalign 2>/dev/null | head -n1 || true)
+          fi
+          echo "APKSIGNER=${APKSIGNER_PATH}" >> $GITHUB_ENV
+          echo "ZIPALIGN=${ZIPALIGN_PATH}" >> $GITHUB_ENV
+          echo "Found apksigner: $APKSIGNER_PATH"
+          echo "Found zipalign: $ZIPALIGN_PATH"
+
+      - name: Sign and zipalign APK
+        env:
+          KEYSTORE_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -e
+          # locate the unsigned/debug apk produced by gradle
+          APK_IN="$(ls app/build/outputs/apk/universal/debug/*.apk 2>/dev/null | head -n1)"
+          if [ -z "$APK_IN" ]; then
+            echo "No APK found at app/build/outputs/apk/universal/debug/"
+            exit 1
+          fi
+          echo "Input APK: $APK_IN"
+          # work on a copy so we keep the original if needed
+          APK_SIGNED="${APK_IN%.*}-signed.apk"
+          cp "$APK_IN" "$APK_SIGNED"
+          echo "Signing $APK_SIGNED with keystore.jks (alias=$KEYSTORE_ALIAS)"
+          if [ -z "${APKSIGNER:-}" ]; then
+            # use env var set by previous step
+            APKSIGNER="${APKSIGNER:-$APKSIGNER}"
+          fi
+          APKSIGNER="${APKSIGNER:-$APKSIGNER}"
+          # prefer using GITHUB_ENV APKSIGNER if set
+          APKSIGNER="${APKSIGNER:-$(echo $APKSIGNER)}"
+          if [ -z "$APKSIGNER" ]; then
+            echo "apksigner not found. Cannot sign APK."
+            exit 1
+          fi
+          "$APKSIGNER" sign --ks keystore.jks --ks-key-alias "$KEYSTORE_ALIAS" --ks-pass "pass:$KEYSTORE_STORE_PASSWORD" --key-pass "pass:$KEYSTORE_KEY_PASSWORD" "$APK_SIGNED"
+          echo "Signed APK: $APK_SIGNED"
+          if [ -n "${ZIPALIGN:-}" ]; then
+            ALIGNED="${APK_SIGNED%.*}-aligned.apk"
+            echo "Zipaligning to $ALIGNED"
+            "$ZIPALIGN" -v 4 "$APK_SIGNED" "$ALIGNED"
+            mv "$ALIGNED" "$APK_SIGNED"
+            echo "Zipaligned APK: $APK_SIGNED"
+          else
+            echo "zipalign not found; skipping zipalign"
+          fi
+          # move the final signed apk into the filename expected by later steps
+          mv "$APK_SIGNED" app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
+          echo "Final signed APK: app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk"
 
       - name: Generate changelog
         id: changelog
