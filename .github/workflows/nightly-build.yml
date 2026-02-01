@@ -94,7 +94,7 @@ jobs:
           unzip -q cmdline-tools.zip -d cmdline-tools-temp
           rm -rf "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" "$ANDROID_SDK_ROOT/cmdline-tools/latest/lib"
           mv cmdline-tools-temp/cmdline-tools/* "$ANDROID_SDK_ROOT/cmdline-tools/latest/"
-          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --licenses
+          yes 2>/dev/null | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --licenses || true
           "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "build-tools;$BUILD_TOOLS_VERSION" "platforms;$PLATFORM_VERSION"
           echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
