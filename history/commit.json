@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "1b5f270ebc87640de3deef6fa539fd48cd93032d",
-    "message": "feat(MainActivity.kt): add mediametadata import #268"
+    "sha": "ded30bdc57bafebc3b0b082cafde6983285df80d",
+    "message": "feat(VideoFilter): handle video song filtering correctly"
   }
 }
