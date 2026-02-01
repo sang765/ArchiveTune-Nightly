@@ -10,11 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      NIGHTLY_KEYSTORE_B64: ${{ secrets.KEYSTORE_BASE64 }}
-      KEYSTORE_ALIAS: ${{ secrets.KEY_ALIAS }}
-      KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-      KEYSTORE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
     outputs:
       new_version: ${{ env.NEW_VERSION }}
       new_version_code: ${{ env.NEW_VERSION_CODE }}
@@ -41,15 +36,23 @@ jobs:
 
       - name: Update version name and code for nightly build
         run: |
+          # original values
           ORIGINAL_VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\(.*\)"/\1/')
           ORIGINAL_VERSION_CODE=$(grep 'versionCode = ' app/build.gradle.kts | head -n1 | sed 's/.*versionCode = \(.*\)/\1/' | tr -d '[:space:]')
+
+          # new versionName (prefix N + YYYYMMDD)
           NEW_VERSION="N$(date +%Y%m%d)"
+
+          # prefer CI build number; fallback to date if not available
           NEW_VERSION_CODE="${GITHUB_RUN_NUMBER}"
           if [ -z "$NEW_VERSION_CODE" ]; then
             NEW_VERSION_CODE=$(date +%Y%m%d)
           fi
+
+          # apply replacements
           sed -i "s/versionName = \"$ORIGINAL_VERSION\"/versionName = \"$NEW_VERSION\"/" app/build.gradle.kts
           sed -i "s/versionCode = $ORIGINAL_VERSION_CODE/versionCode = $NEW_VERSION_CODE/" app/build.gradle.kts
+
           echo "Changed version from $ORIGINAL_VERSION ($ORIGINAL_VERSION_CODE) to $NEW_VERSION ($NEW_VERSION_CODE)"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "NEW_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
@@ -82,130 +85,8 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
 
-      - name: Install Android SDK command-line tools and build-tools
-        run: |
-          set -euo pipefail
-          BUILD_TOOLS_VERSION="33.0.2"
-          PLATFORM_VERSION="android-33"
-          ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}
-          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
-          cd /tmp
-          curl -sSfL https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o cmdline-tools.zip
-          unzip -q cmdline-tools.zip -d cmdline-tools-temp
-          rm -rf "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" "$ANDROID_SDK_ROOT/cmdline-tools/latest/lib"
-          mv cmdline-tools-temp/cmdline-tools/* "$ANDROID_SDK_ROOT/cmdline-tools/latest/"
-          yes 2>/dev/null | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --licenses || true
-          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "build-tools;$BUILD_TOOLS_VERSION" "platforms;$PLATFORM_VERSION"
-          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-          echo "PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
-          ls -la "$ANDROID_SDK_ROOT/build-tools/$BUILD_TOOLS_VERSION" || true
-          echo "Installed Android build-tools $BUILD_TOOLS_VERSION and platform $PLATFORM_VERSION"
-
-      - name: Restore signing keystore
-        run: |
-          if [ -z "$NIGHTLY_KEYSTORE_B64" ]; then
-            echo "NIGHTLY_KEYSTORE_B64 secret is empty or not set — skipping keystore restore"
-          else
-            # Validate base64 before decoding
-            if echo "$NIGHTLY_KEYSTORE_B64" | base64 -d > /dev/null 2>&1; then
-              echo "$NIGHTLY_KEYSTORE_B64" | base64 --decode > keystore.jks
-              ls -lh keystore.jks
-            else
-              echo "ERROR: NIGHTLY_KEYSTORE_B64 contains invalid base64 data — skipping keystore restore"
-            fi
-          fi
-
-      - name: Install apktool and signapk
-        run: |
-          # Install apktool
-          cd /tmp
-          curl -sSfL https://github.com/iBotPeaches/Apktool/releases/download/v2.10.0/apktool_2.10.0.jar -o apktool.jar
-          echo "#! /bin/sh" > apktool
-          echo "java -jar /tmp/apktool.jar \"\$@\"" >> apktool
-          chmod +x apktool
-          sudo mv apktool /usr/local/bin/
-          
-          # Install apksigner if not available
-          if ! command -v apksigner >/dev/null 2>&1; then
-            ANDROID_HOME=${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}
-            cp "$ANDROID_HOME/build-tools/33.0.2/apksigner" /usr/local/bin/ 2>/dev/null || true
-          fi
-          echo "Installed signing tools"
-
-      - name: Sign and zipalign APK
-        run: |
-          set -e
-          APK_IN="$(ls app/build/outputs/apk/universal/debug/*.apk 2>/dev/null | head -n1)"
-          if [ -z "$APK_IN" ]; then
-            echo "No APK found at app/build/outputs/apk/universal/debug/"
-            exit 1
-          fi
-          echo "Input APK: $APK_IN"
-          
-          APK_UNSIGNED="${APK_IN%.*}-unsigned.apk"
-          APK_SIGNED="${APK_IN%.*}-signed.apk"
-          
-          # Use zipalign first to optimize the APK (before signing)
-          if command -v zipalign >/dev/null 2>&1; then
-            ZIPALIGN=$(command -v zipalign)
-            echo "Zipaligning input APK..."
-            "$ZIPALIGN" -v 4 "$APK_IN" "$APK_UNSIGNED"
-          else
-            echo "zipalign not found, copying APK..."
-            cp "$APK_IN" "$APK_UNSIGNED"
-          fi
-          
-          # Remove old signatures using zip (META-INF contains signatures)
-          echo "Removing old signatures..."
-          rm -rf /tmp/unsigned_apk
-          mkdir -p /tmp/unsigned_apk
-          unzip -q "$APK_UNSIGNED" -d /tmp/unsigned_apk
-          rm -rf /tmp/unsigned_apk/META-INF/*
-          rm -f /tmp/unsigned_apk/META-INF
-          cd /tmp/unsigned_apk && zip -q -r /tmp/unsigned_signed.zip ./* && cd - > /dev/null
-          mv /tmp/unsigned_signed.zip "$APK_UNSIGNED"
-          
-          echo "Signing $APK_UNSIGNED with keystore.jks (alias=$KEYSTORE_ALIAS)"
-          if [ -z "${APKSIGNER:-}" ]; then
-            APKSIGNER=$(command -v apksigner || true)
-          fi
-          if [ -z "$APKSIGNER" ]; then
-            echo "apksigner not found. Trying jarsigner..."
-            APKSIGNER=$(command -v jarsigner || true)
-          fi
-          if [ -z "$APKSIGNER" ]; then
-            echo "No signing tool found. Cannot sign APK."
-            exit 1
-          fi
-          
-          # Try apksigner first
-          if [[ "$APKSIGNER" == *"apksigner"* ]]; then
-            "$APKSIGNER" sign --ks keystore.jks --ks-key-alias "$KEYSTORE_ALIAS" --ks-pass "pass:$KEYSTORE_STORE_PASSWORD" --key-pass "pass:$KEYSTORE_KEY_PASSWORD" --v1-signing-enabled true --v3-signing-enabled true -o "$APK_SIGNED" "$APK_UNSIGNED"
-          else
-            # Fallback to jarsigner
-            jarsigner -keystore keystore.jks -storepass "$KEYSTORE_STORE_PASSWORD" -keypass "$KEYSTORE_KEY_PASSWORD" -signedjar "$APK_SIGNED" "$APK_UNSIGNED" "$KEYSTORE_ALIAS"
-          fi
-          echo "Signed APK: $APK_SIGNED"
-          rm -f "$APK_UNSIGNED"
-          
-          # Zipalign after signing
-          if command -v zipalign >/dev/null 2>&1; then
-            ZIPALIGN=$(command -v zipalign)
-            ALIGNED="${APK_SIGNED%.*}-aligned.apk"
-            echo "Zipaligning to $ALIGNED"
-            "$ZIPALIGN" -v 4 "$APK_SIGNED" "$ALIGNED"
-            mv "$ALIGNED" "$APK_SIGNED"
-            echo "Zipaligned APK: $APK_SIGNED"
-          else
-            echo "zipalign not found; skipping zipalign"
-          fi
-          
-          mv "$APK_SIGNED" app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
-          rm -f "$APK_IN"
-          echo "Verifying APK signature..."
-          "$APKSIGNER" verify --print-certs -v app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk || echo "Verification completed"
-          echo "Final signed APK: app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk"
+      - name: Rename APK
+        run: mv app/build/outputs/apk/universal/debug/*.apk app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
 
       - name: Generate changelog
         id: changelog
@@ -214,6 +95,7 @@ jobs:
           echo "## Changelog" >> changelog.txt
           echo "" >> changelog.txt
           echo "$CHANGELOG" >> changelog.txt
+          # Escape for GITHUB_OUTPUT
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "## Changelog" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
@@ -238,7 +120,7 @@ jobs:
 
             ${{ steps.changelog.outputs.changelog }}
           files: |
-            app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
+            app/build/outputs/apk/universal/debug/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
