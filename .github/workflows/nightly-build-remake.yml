@@ -158,13 +158,13 @@ jobs:
           
           # Remove old signatures using zip (META-INF contains signatures)
           echo "Removing old signatures..."
-          cd /tmp
-          unzip -q "$APK_UNSIGNED" -d unsigned_apk
-          rm -rf unsigned_apk/META-INF/*
-          rm -f unsigned_apk/META-INF
-          zip -q -r unsigned_signed.zip unsigned_apk/*
-          mv unsigned_signed.zip "$APK_UNSIGNED"
-          cd - > /dev/null
+          rm -rf /tmp/unsigned_apk
+          mkdir -p /tmp/unsigned_apk
+          unzip -q "$APK_UNSIGNED" -d /tmp/unsigned_apk
+          rm -rf /tmp/unsigned_apk/META-INF/*
+          rm -f /tmp/unsigned_apk/META-INF
+          cd /tmp/unsigned_apk && zip -q -r /tmp/unsigned_signed.zip ./* && cd - > /dev/null
+          mv /tmp/unsigned_signed.zip "$APK_UNSIGNED"
           
           echo "Signing $APK_UNSIGNED with keystore.jks (alias=$KEYSTORE_ALIAS)"
           if [ -z "${APKSIGNER:-}" ]; then
