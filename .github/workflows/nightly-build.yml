@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write
     env:
-      NIGHTLY_KEYSTORE_B64: ${{ secrets.KEYSTORE }}
+      NIGHTLY_KEYSTORE_B64: ${{ secrets.KEYSTORE_BASE64 }}
       KEYSTORE_ALIAS: ${{ secrets.KEY_ALIAS }}
       KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       KEYSTORE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -107,8 +107,13 @@ jobs:
           if [ -z "$NIGHTLY_KEYSTORE_B64" ]; then
             echo "NIGHTLY_KEYSTORE_B64 secret is empty or not set — skipping keystore restore"
           else
-            echo "$NIGHTLY_KEYSTORE_B64" | base64 --decode > keystore.jks
-            ls -lh keystore.jks
+            # Validate base64 before decoding
+            if echo "$NIGHTLY_KEYSTORE_B64" | base64 -d > /dev/null 2>&1; then
+              echo "$NIGHTLY_KEYSTORE_B64" | base64 --decode > keystore.jks
+              ls -lh keystore.jks
+            else
+              echo "ERROR: NIGHTLY_KEYSTORE_B64 contains invalid base64 data — skipping keystore restore"
+            fi
           fi
 
       - name: Locate apksigner and zipalign (set env)
