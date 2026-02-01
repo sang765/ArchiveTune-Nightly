@@ -2,7 +2,7 @@ name: Update Badge
 
 on:
   workflow_run:
-    workflows: ["Nightly Build", "trigger-nightly"]
+    workflows: ["Nightly Build (New)", "trigger-nightly"]
     types:
       - completed
 
