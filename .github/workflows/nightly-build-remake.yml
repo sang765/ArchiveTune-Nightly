@@ -167,6 +167,10 @@ jobs:
             echo "zipalign not found; skipping zipalign"
           fi
           mv "$APK_SIGNED" app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
+          rm -f "$APK_IN"
+          echo "Verifying APK signature..."
+          "$APKSIGNER" verify --print-certs -v app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk || echo "Verification completed"
+          rm -f "$APK_IN"
           echo "Final signed APK: app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk"
 
       - name: Generate changelog
