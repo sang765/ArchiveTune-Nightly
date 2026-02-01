@@ -135,6 +135,16 @@ jobs:
           echo "Found apksigner: $APKSIGNER_PATH"
           echo "Found zipalign: $ZIPALIGN_PATH"
 
+      - name: Install apktool for signature stripping
+        run: |
+          cd /tmp
+          curl -sSfL https://github.com/iBotPeaches/Apktool/releases/download/v2.10.0/apktool_2.10.0.jar -o apktool.jar
+          echo "#! /bin/sh" > apktool
+          echo "java -jar /tmp/apktool.jar \"\$@\"" >> apktool
+          chmod +x apktool
+          sudo mv apktool /usr/local/bin/
+          echo "Installed apktool"
+
       - name: Sign and zipalign APK
         run: |
           set -e
@@ -144,9 +154,18 @@ jobs:
             exit 1
           fi
           echo "Input APK: $APK_IN"
+          APK_UNSIGNED="${APK_IN%.*}-unsigned.apk"
           APK_SIGNED="${APK_IN%.*}-signed.apk"
-          cp "$APK_IN" "$APK_SIGNED"
-          echo "Signing $APK_SIGNED with keystore.jks (alias=$KEYSTORE_ALIAS)"
+          
+          # Use apktool to strip existing signature (decode and rebuild)
+          echo "Stripping existing signatures with apktool..."
+          apktool d "$APK_IN" -o "${APK_IN%.apk}_decoded" --no-res
+          rm -rf "${APK_IN%.apk}_decoded/original"
+          rm -rf "${APK_IN%.apk}_decoded/META-INF"
+          apktool b "${APK_IN%.apk}_decoded" -o "$APK_UNSIGNED"
+          rm -rf "${APK_IN%.apk}_decoded"
+          
+          echo "Signing $APK_UNSIGNED with keystore.jks (alias=$KEYSTORE_ALIAS)"
           if [ -z "${APKSIGNER:-}" ]; then
             APKSIGNER=$(command -v apksigner || true)
           fi
@@ -154,8 +173,10 @@ jobs:
             echo "apksigner not found. Cannot sign APK."
             exit 1
           fi
-          "$APKSIGNER" sign --ks keystore.jks --ks-key-alias "$KEYSTORE_ALIAS" --ks-pass "pass:$KEYSTORE_STORE_PASSWORD" --key-pass "pass:$KEYSTORE_KEY_PASSWORD" --v1-signing-enabled true --v3-signing-enabled true --remove-old-signatures "$APK_SIGNED"
+          "$APKSIGNER" sign --ks keystore.jks --ks-key-alias "$KEYSTORE_ALIAS" --ks-pass "pass:$KEYSTORE_STORE_PASSWORD" --key-pass "pass:$KEYSTORE_KEY_PASSWORD" --v1-signing-enabled true --v3-signing-enabled true -o "$APK_SIGNED" "$APK_UNSIGNED"
           echo "Signed APK: $APK_SIGNED"
+          rm -f "$APK_UNSIGNED"
+          
           if command -v zipalign >/dev/null 2>&1 || [ -n "${ZIPALIGN:-}" ]; then
             ZIPALIGN_BIN="${ZIPALIGN:-$(command -v zipalign)}"
             ALIGNED="${APK_SIGNED%.*}-aligned.apk"
@@ -170,7 +191,6 @@ jobs:
           rm -f "$APK_IN"
           echo "Verifying APK signature..."
           "$APKSIGNER" verify --print-certs -v app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk || echo "Verification completed"
-          rm -f "$APK_IN"
           echo "Final signed APK: app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk"
 
       - name: Generate changelog
