@@ -18,7 +18,6 @@ jobs:
       - name: Checkout dev branch
         uses: actions/checkout@v6.0.1
         with:
-          repository: koiverse/ArchiveTune
           ref: dev
 
       - name: Set up JDK 21
@@ -34,49 +33,6 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      - name: Update version name and code for nightly build
-        run: |
-          # original values
-          ORIGINAL_VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\(.*\)"/\1/')
-          ORIGINAL_VERSION_CODE=$(grep 'versionCode = ' app/build.gradle.kts | head -n1 | sed 's/.*versionCode = \(.*\)/\1/' | tr -d '[:space:]')
-
-          # new versionName (prefix N + YYYYMMDD)
-          NEW_VERSION="N$(date +%Y%m%d)"
-
-          # prefer CI build number; fallback to date if not available
-          NEW_VERSION_CODE="${GITHUB_RUN_NUMBER}"
-          if [ -z "$NEW_VERSION_CODE" ]; then
-            NEW_VERSION_CODE=$(date +%Y%m%d)
-          fi
-
-          # apply replacements
-          sed -i "s/versionName = \"$ORIGINAL_VERSION\"/versionName = \"$NEW_VERSION\"/" app/build.gradle.kts
-          sed -i "s/versionCode = $ORIGINAL_VERSION_CODE/versionCode = $NEW_VERSION_CODE/" app/build.gradle.kts
-
-          echo "Changed version from $ORIGINAL_VERSION ($ORIGINAL_VERSION_CODE) to $NEW_VERSION ($NEW_VERSION_CODE)"
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-          echo "NEW_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
-
-      - name: Update app name and package
-        run: |
-          sed -i 's/applicationId = "moe.koiverse.archivetune"/applicationId = "moe.koiverse.archivetune.nightly"/' app/build.gradle.kts
-          sed -i 's/ArchiveTune Debug/ArchiveTune Nightly Debug/' app/src/debug/res/values/app_name.xml
-          sed -i 's/ArchiveTune/ArchiveTune Nightly/' app/src/main/res/values/app_name.xml
-
-      - name: Set default update channel to nightly
-        run: sed -i 's/defaultValue = UpdateChannel.STABLE/defaultValue = UpdateChannel.NIGHTLY/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/UpdateScreen.kt
-
-      - name: Update about screen to show ABI_NIGHTLY label
-        run: |
-          sed -i 's/text = BuildConfig.ARCHITECTURE.uppercase(),/text = "${BuildConfig.ARCHITECTURE.uppercase()}_NIGHTLY",/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/AboutScreen.kt
-
-      - name: Update update check URLs for fork
-        run: |
-          sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases|https://api.github.com/repos/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
-          sed -i 's|https://github.com/koiverse/ArchiveTune/releases|https://github.com/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
-          sed -i 's/ArchiveTune.apk/ArchiveTune-Nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
-          sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Generate changelog
         id: changelog
@@ -124,6 +80,49 @@ jobs:
 
       - name: Decode keystore
         run: echo "$KEYSTORE_B64" | base64 -d > release.keystore
+
+      - name: Update version name and code for nightly build
+        run: |
+          # original values
+          ORIGINAL_VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\(.*\)"/\1/')
+          ORIGINAL_VERSION_CODE=$(grep 'versionCode = ' app/build.gradle.kts | head -n1 | sed 's/.*versionCode = \(.*\)/\1/' | tr -d '[:space:]')
+
+          # new versionName (prefix N + YYYYMMDD)
+          NEW_VERSION="N$(date +%Y%m%d)"
+
+          # prefer CI build number; fallback to date if not available
+          NEW_VERSION_CODE="${GITHUB_RUN_NUMBER}"
+          if [ -z "$NEW_VERSION_CODE" ]; then
+            NEW_VERSION_CODE=$(date +%Y%m%d)
+          fi
+
+          # apply replacements
+          sed -i "s/versionName = \"$ORIGINAL_VERSION\"/versionName = \"$NEW_VERSION\"/" app/build.gradle.kts
+          sed -i "s/versionCode = $ORIGINAL_VERSION_CODE/versionCode = $NEW_VERSION_CODE/" app/build.gradle.kts
+
+          echo "Changed version from $ORIGINAL_VERSION ($ORIGINAL_VERSION_CODE) to $NEW_VERSION ($NEW_VERSION_CODE)"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "NEW_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
+
+      - name: Update app name and package
+        run: |
+          sed -i 's/applicationId = "moe.koiverse.archivetune"/applicationId = "moe.koiverse.archivetune.nightly"/' app/build.gradle.kts
+          sed -i 's/ArchiveTune Debug/ArchiveTune Nightly Debug/' app/src/debug/res/values/app_name.xml
+          sed -i 's/ArchiveTune/ArchiveTune Nightly/' app/src/main/res/values/app_name.xml
+
+      - name: Set default update channel to nightly
+        run: sed -i 's/defaultValue = UpdateChannel.STABLE/defaultValue = UpdateChannel.NIGHTLY/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/UpdateScreen.kt
+
+      - name: Update about screen to show ABI_NIGHTLY label
+        run: |
+          sed -i 's/text = BuildConfig.ARCHITECTURE.uppercase(),/text = "${BuildConfig.ARCHITECTURE.uppercase()}_NIGHTLY",/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/AboutScreen.kt
+
+      - name: Update update check URLs for fork
+        run: |
+          sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases|https://api.github.com/repos/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+          sed -i 's|https://github.com/koiverse/ArchiveTune/releases|https://github.com/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+          sed -i 's/ArchiveTune.apk/ArchiveTune-Nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+          sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build Release APK
         run: ./gradlew assemble${{ matrix.abi }}Release
