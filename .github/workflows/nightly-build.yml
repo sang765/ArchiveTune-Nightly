@@ -165,7 +165,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: dev
+          repository: sang765/ArchiveTune-Nightly
+          ref: main
           fetch-depth: 0
 
       - name: Download all APKs
