@@ -24,6 +24,24 @@ jobs:
           repository: koiverse/ArchiveTune
           ref: dev
 
+      - name: Generate changelog
+        id: changelog
+        run: |
+          CHANGELOG=$(git log --pretty=format="- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "## Changelog" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Get Date
+        id: date
+        run: echo "date=$(date +'%Y/%m/%d')" >> $GITHUB_OUTPUT
+
+      - name: Get Time
+        id: time
+        run: echo "time=$(date +'%I:%M:%S %p')" >> $GITHUB_OUTPUT
+
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
