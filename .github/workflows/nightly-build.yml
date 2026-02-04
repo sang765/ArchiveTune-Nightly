@@ -16,7 +16,7 @@ jobs:
       time: ${{ steps.time.outputs.time }}
     strategy:
       matrix:
-        abi: [ 'Arm64', 'Armeiabi', 'X86', 'X86_64', 'Universal' ]
+        abi: [ 'arm64', 'armeiabi', 'x86', 'x86_64', 'universal' ]
 
     steps:
       - uses: actions/checkout@v6
