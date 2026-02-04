@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        abi: [ 'arm64', 'armeabi', 'x86', 'x86_64', 'universal' ]
+        abi: [ 'Arm64', 'Armeiabi', 'X86', 'X86_64', 'Universal' ]
 
     steps:
       - uses: actions/checkout@v6
@@ -139,9 +139,10 @@ jobs:
         run: |
           set -euo pipefail
           ABI="${{ matrix.abi }}"
+          ABI_LOWER=$(echo "$ABI" | tr '[:upper:]' '[:lower:]')
           CANDIDATES=(
-            "app/build/outputs/apk/${ABI}/release"
-            "app/build/outputs/apk/${ABI}Release/release"
+            "app/build/outputs/apk/${ABI_LOWER}/release"
+            "app/build/outputs/apk/${ABI_LOWER}Release/release"
           )
           for d in "${CANDIDATES[@]}"; do
             if [ -d "$d" ]; then
@@ -153,10 +154,10 @@ jobs:
           FOUND_METADATA="$(
             find app/build/outputs/apk -type f -name "output-metadata.json" \
               \( \
-                -path "*/${ABI}/release/output-metadata.json" -o \
-                -path "*/${ABI}Release/release/output-metadata.json" -o \
-                -path "*/${ABI}/*/release/output-metadata.json" -o \
-                -path "*/${ABI}Release/*/release/output-metadata.json" \
+                -path "*/${ABI_LOWER}/release/output-metadata.json" -o \
+                -path "*/${ABI_LOWER}Release/release/output-metadata.json" -o \
+                -path "*/${ABI_LOWER}/*/release/output-metadata.json" -o \
+                -path "*/${ABI_LOWER}Release/*/release/output-metadata.json" \
               \) \
               | head -n 1 || true
           )"
@@ -183,17 +184,19 @@ jobs:
         run: |
           RELEASE_DIR="${{ steps.release_dir.outputs.release_dir }}"
           mkdir -p "$RELEASE_DIR/out"
-          if [ "${{ matrix.abi }}" = "universal" ]; then
+          ABI="${{ matrix.abi }}"
+          if [ "$ABI" = "Universal" ]; then
             find "$RELEASE_DIR" -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} "$RELEASE_DIR/out/ArchiveTune-Nightly.apk"
           else
-            find "$RELEASE_DIR" -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} "$RELEASE_DIR/out/app-${{ matrix.abi }}-nightly.apk"
+            ABI_LOWER=$(echo "$ABI" | tr '[:upper:]' '[:lower:]')
+            find "$RELEASE_DIR" -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} "$RELEASE_DIR/out/app-${ABI_LOWER}-nightly.apk"
           fi
 
       - name: Upload APKs
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ matrix.abi == 'universal' && 'ArchiveTune-Nightly' || format('app-{0}-nightly', matrix.abi) }}
-          path: ${{ steps.release_dir.outputs.release_dir }}/out/${{ matrix.abi == 'universal' && 'ArchiveTune-Nightly.apk' || format('app-{0}-nightly.apk', matrix.abi) }}
+          name: ${{ matrix.abi == 'Universal' && 'ArchiveTune-Nightly' || format('app-{0}-nightly', matrix.abi) }}
+          path: ${{ steps.release_dir.outputs.release_dir }}/out/${{ matrix.abi == 'Universal' && 'ArchiveTune-Nightly.apk' || format('app-{0}-nightly.apk', matrix.abi) }}
 
   create-release:
     needs: [prepare, build]
