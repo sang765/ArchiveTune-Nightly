@@ -6,13 +6,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  prepare:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     outputs:
       new_version: ${{ env.NEW_VERSION }}
       new_version_code: ${{ env.NEW_VERSION_CODE }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+      date: ${{ steps.date.outputs.date }}
+      time: ${{ steps.time.outputs.time }}
     steps:
       - name: Checkout dev branch
         uses: actions/checkout@v6.0.1
@@ -67,8 +68,9 @@ jobs:
       - name: Set default update channel to nightly
         run: sed -i 's/defaultValue = UpdateChannel.STABLE/defaultValue = UpdateChannel.NIGHTLY/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/UpdateScreen.kt
 
-      - name: Update about screen debug label to nightly
-        run: sed -i 's/text = "DEBUG"/text = "NIGHTLY"/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/AboutScreen.kt
+      - name: Update about screen to show ABI_NIGHTLY label
+        run: |
+          sed -i 's/text = BuildConfig.ARCHITECTURE.uppercase(),/text = "${BuildConfig.ARCHITECTURE.uppercase()}_NIGHTLY",/' app/src/main/kotlin/moe/koiverse/archivetune/ui/screens/settings/AboutScreen.kt
 
       - name: Update update check URLs for fork
         run: |
@@ -77,25 +79,10 @@ jobs:
           sed -i 's/ArchiveTune.apk/ArchiveTune-Nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
           sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
-      - name: Build nightly APKs
-        run: ./gradlew assembleUniversalDebug
-        env:
-          PULL_REQUEST: 'false'
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
-
-      - name: Rename APK
-        run: mv app/build/outputs/apk/universal/debug/*.apk app/build/outputs/apk/universal/debug/ArchiveTune-Nightly.apk
-
       - name: Generate changelog
         id: changelog
         run: |
           CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
-          echo "## Changelog" >> changelog.txt
-          echo "" >> changelog.txt
-          echo "$CHANGELOG" >> changelog.txt
-          # Escape for GITHUB_OUTPUT
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "## Changelog" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
@@ -110,17 +97,132 @@ jobs:
         id: time
         run: echo "time=$(date +'%I:%M:%S %p')" >> $GITHUB_OUTPUT
 
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        abi: [ 'arm64', 'armeabi', 'x86', 'x86_64', 'universal' ]
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: dev
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set Up Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-cleanup: on-success
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decode keystore
+        run: echo "$KEYSTORE_B64" | base64 -d > release.keystore
+
+      - name: Build Release APK
+        run: ./gradlew assemble${{ matrix.abi }}Release
+        env:
+          PULL_REQUEST: 'false'
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
+
+      - name: Resolve release output directory
+        id: release_dir
+        shell: bash
+        run: |
+          set -euo pipefail
+          ABI="${{ matrix.abi }}"
+          CANDIDATES=(
+            "app/build/outputs/apk/${ABI}/release"
+            "app/build/outputs/apk/${ABI}Release/release"
+          )
+          for d in "${CANDIDATES[@]}"; do
+            if [ -d "$d" ]; then
+              echo "release_dir=$d" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          FOUND_METADATA="$(
+            find app/build/outputs/apk -type f -name "output-metadata.json" \
+              \( \
+                -path "*/${ABI}/release/output-metadata.json" -o \
+                -path "*/${ABI}Release/release/output-metadata.json" -o \
+                -path "*/${ABI}/*/release/output-metadata.json" -o \
+                -path "*/${ABI}Release/*/release/output-metadata.json" \
+              \) \
+              | head -n 1 || true
+          )"
+          if [ -n "${FOUND_METADATA:-}" ]; then
+            echo "release_dir=$(dirname "$FOUND_METADATA")" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Could not resolve APK release output directory for ABI=$ABI"
+          find app/build/outputs/apk -maxdepth 6 -type d -print || true
+          exit 1
+
+      - name: Sign APK
+        uses: ilharp/sign-android-release@v2.0.0
+        with:
+          releaseDir: ${{ steps.release_dir.outputs.release_dir }}/
+          signingKey: ${{ secrets.KEYSTORE_B64 }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          buildToolsVersion: 35.0.0
+
+      - name: Move and rename signed APKs
+        run: |
+          RELEASE_DIR="${{ steps.release_dir.outputs.release_dir }}"
+          mkdir -p "$RELEASE_DIR/out"
+          if [ "${{ matrix.abi }}" = "universal" ]; then
+            find "$RELEASE_DIR" -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} "$RELEASE_DIR/out/ArchiveTune-Nightly.apk"
+          else
+            find "$RELEASE_DIR" -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} "$RELEASE_DIR/out/app-${{ matrix.abi }}-nightly.apk"
+          fi
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.abi == 'universal' && 'ArchiveTune-Nightly' || format('app-{0}-nightly', matrix.abi) }}
+          path: ${{ steps.release_dir.outputs.release_dir }}/out/${{ matrix.abi == 'universal' && 'ArchiveTune-Nightly.apk' || format('app-{0}-nightly.apk', matrix.abi) }}
+
+  create-release:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Download all APKs
+        uses: actions/download-artifact@v7
+        with:
+          path: downloaded_artifacts/
+
       - name: Create nightly release
         uses: softprops/action-gh-release@v2.5.0
         with:
-          tag_name: ${{ env.NEW_VERSION }}
-          name: ${{ env.NEW_VERSION }}
+          tag_name: ${{ needs.prepare.outputs.new_version }}
+          name: ${{ needs.prepare.outputs.new_version }}
           body: |
-            Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }} (UTC +0)**
+            Release **ArchiveTune Nightly** artifact, generated on **${{ needs.prepare.outputs.date }} - ${{ needs.prepare.outputs.time }} (UTC +0)**
 
-            ${{ steps.changelog.outputs.changelog }}
+            ${{ needs.prepare.outputs.changelog }}
           files: |
-            app/build/outputs/apk/universal/debug/*.apk
+            downloaded_artifacts/**/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
@@ -130,7 +232,7 @@ jobs:
             -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type": "update-release-notes", "client_payload": {"new_version": "${{ env.NEW_VERSION }}", "changelog_engine": "kotlin"}}'
+            -d '{"event_type": "update-release-notes", "client_payload": {"new_version": "${{ needs.prepare.outputs.new_version }}", "changelog_engine": "kotlin"}}'
 
       - name: Notify on failure
         if: failure()
