@@ -82,9 +82,10 @@ jobs:
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "NEW_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
 
-      - name: Update app name and package
+      - name: Update app name, package, and namespace
         run: |
           sed -i 's/applicationId = "moe.koiverse.archivetune"/applicationId = "moe.koiverse.archivetune.nightly"/' app/build.gradle.kts
+          sed -i 's/namespace = "moe.koiverse.archivetune"/namespace = "moe.koiverse.archivetune.nightly"/' app/build.gradle.kts
           sed -i 's/ArchiveTune Debug/ArchiveTune Nightly Debug/' app/src/debug/res/values/app_name.xml
           sed -i 's/ArchiveTune/ArchiveTune Nightly/' app/src/main/res/values/app_name.xml
 
