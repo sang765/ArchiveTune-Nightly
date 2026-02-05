@@ -139,42 +139,30 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
 
-      - name: Download sign key
-        run: |
-          curl -O "https://raw.githubusercontent.com/sang765/ArchiveTune-Nightly/main/sang765.jks"
-
-      - name: Sign APK with apksigner
-        run: |
-          # Find the unsigned APK
-          unsigned_apk=$(find app/build/outputs/apk/${{ matrix.abi }}/release/ -name "*.apk" ! -name "*-signed.apk" | head -n 1)
-
-          if [ -z "$unsigned_apk" ]; then
-            echo "Error: No unsigned APK found in app/build/outputs/apk/${{ matrix.abi }}/release/"
-            find app/build/outputs/apk/${{ matrix.abi }}/release/ -type f -name "*.apk"
-            exit 1
-          fi
-
-          echo "Signing APK: $unsigned_apk"
-
-          # Sign the APK using apksigner
-          apksigner sign \
-            --ks sang765.jks \
-            --ks-key-alias ${{ secrets.KEY_ALIAS }} \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
-            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
-            --out "${unsigned_apk%.apk}-signed.apk" \
-            "$unsigned_apk"
-
-          echo "Signed APK created: ${unsigned_apk%.apk}-signed.apk"
+      - name: Sign APK with sign-android-release action
+        id: sign_app
+        uses: ilharp/sign-android-release@v2
+        with:
+          releaseDir: app/build/outputs/apk/${{ matrix.abi }}/release
+          signingKey: ${{ secrets.SIGNING_KEY_BASE64 }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Move signed APK
         run: |
           mkdir -p app/build/outputs/apk/${{ matrix.abi }}/release/out
-          if [ "${{ matrix.abi }}" = "universal" ]; then
-            find app/build/outputs/apk/${{ matrix.abi }}/release/ -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} app/build/outputs/apk/${{ matrix.abi }}/release/out/ArchiveTune-Nightly.apk
-          else
-            find app/build/outputs/apk/${{ matrix.abi }}/release/ -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} app/build/outputs/apk/${{ matrix.abi }}/release/out/app-${{ matrix.abi }}-nightly.apk
-          fi
+          # Get signed files from action output
+          IFS=':' read -ra SIGNED_FILES <<< "${{ steps.sign_app.outputs.signedFiles }}"
+          for signed_file in "${SIGNED_FILES[@]}"; do
+            if [ -f "$signed_file" ]; then
+              if [ "${{ matrix.abi }}" = "universal" ]; then
+                cp "$signed_file" app/build/outputs/apk/${{ matrix.abi }}/release/out/ArchiveTune-Nightly.apk
+              else
+                cp "$signed_file" app/build/outputs/apk/${{ matrix.abi }}/release/out/app-${{ matrix.abi }}-nightly.apk
+              fi
+            fi
+          done
 
       - name: Upload Signed APK
         uses: actions/upload-artifact@v6
