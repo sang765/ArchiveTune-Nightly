@@ -102,7 +102,7 @@ jobs:
           sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build Release APK
-        run: ./gradlew --no-daemon assemble${{ matrix.abi }}Release
+        run: ./gradlew assemble${{ matrix.abi }}Release
         env:
           PULL_REQUEST: 'false'
           GITHUB_EVENT_NAME: ${{ github.event_name }}
