@@ -1,7 +1,7 @@
 name: Trigger Workflows
 
 on:
-  workflow_dispatch: #Using https://console.cron-job.org for schedule
+  workflow_dispatch: # Using https://console.cron-job.org for schedule
 
 jobs:
   trigger:
