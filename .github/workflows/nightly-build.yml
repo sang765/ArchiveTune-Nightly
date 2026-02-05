@@ -180,7 +180,6 @@ jobs:
         with:
           repository: sang765/ArchiveTune-Nightly
           ref: main
-          fetch-depth: 0
 
       - name: Download all APKs
         uses: actions/download-artifact@v7
