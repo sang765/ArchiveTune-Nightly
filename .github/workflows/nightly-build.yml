@@ -5,6 +5,10 @@ on:
     types: [trigger-nightly]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -102,7 +106,35 @@ jobs:
           sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build Release APK
-        run: ./gradlew assemble${{ matrix.abi }}Release
+        run: |
+          max_attempts=3
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            echo "================================="
+            echo "Attempt $attempt of $max_attempts"
+            echo "================================="
+            if ./gradlew assemble${{ matrix.abi }}Release; then
+              echo "==============="
+              echo "Build succeeded"
+              echo "==============="
+              exit 0
+            else
+              echo "================================="
+              echo "Build failed with exit code $?"
+              echo "================================="
+              if [ $attempt -eq $max_attempts ]; then
+                echo "================================="
+                echo "All $max_attempts attempts failed"
+                echo "================================="
+                exit 1
+              fi
+              echo "========================"
+              echo "Retrying in 5 seconds..."
+              sleep 5
+              echo "========================"
+              attempt=$((attempt + 1))
+            fi
+          done
         env:
           PULL_REQUEST: 'false'
           GITHUB_EVENT_NAME: ${{ github.event_name }}
