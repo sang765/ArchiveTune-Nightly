@@ -14,6 +14,7 @@
     pkgs.gh
     pkgs.gnupg
     pkgs.bun
+    pkgs.openssl
     # pkgs.go
     # pkgs.python311
     # pkgs.python311Packages.pip
