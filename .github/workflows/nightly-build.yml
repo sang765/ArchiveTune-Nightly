@@ -139,7 +139,7 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
 
-      - name: Sign APK with sign-android-release action
+      - name: Sign APK
         id: sign_app
         uses: ilharp/sign-android-release@v2
         with:
