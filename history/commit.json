@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "f318a9032f2b9db5bd1e6500e4290fd8d1aa14a0",
-    "message": "Merge pull request #285 from koiverse/renovate/hilt\n\nfix(deps): update hilt to v2.59.1"
+    "sha": "9924b30c48f516240a270904e8d761e544e8acf1",
+    "message": "Merge pull request #294 from sang765/fix/square-thumbnail-in-arist\n\nFix: square thumbnail in arist"
   }
 }
