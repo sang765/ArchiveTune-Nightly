@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "9924b30c48f516240a270904e8d761e544e8acf1",
-    "message": "Merge pull request #294 from sang765/fix/square-thumbnail-in-arist\n\nFix: square thumbnail in arist"
+    "sha": "fd18ac198ff2380c5e75e257fcb3e5421a70f79c",
+    "message": "fix(player): prevents the previous chain where dismissing triggered a playlist/timeline change and the service’s recommendation/autoload logic re-populated the queue and resumed playback"
   }
 }
