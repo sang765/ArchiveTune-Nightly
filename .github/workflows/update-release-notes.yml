@@ -83,7 +83,7 @@ jobs:
 
       - name: Update release notes
         run: |
-          BODY=$(cat << EOF
+          BODY=$(cat << 'EOF'
           Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }} (UTC +0)**
 
           ${{ steps.changelog.outputs.changelog }}
