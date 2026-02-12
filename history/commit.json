@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "5a5cf9de63354e64e70e78bb15e689e30a70a74f",
-    "message": "build(proguard-rules): Add dontwarn rule for java.lang.management"
+    "sha": "225eea94f9babdb5d2413e5c1be908e1af2d74c1",
+    "message": "feat(TogetherOnlineEndpoint): add IPv4 address host check to `normalizeBaseUrl"
   }
 }
