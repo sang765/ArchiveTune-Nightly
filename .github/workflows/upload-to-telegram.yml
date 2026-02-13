@@ -16,6 +16,7 @@ env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
   TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
+  RELEASE_TAG: ${{ github.event.workflow_run.release_tag || '' }}
 
 jobs:
   notify-telegram:
@@ -42,39 +43,37 @@ jobs:
             RELEASE_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
           fi
           
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-      - name: Prepare message
-        id: prepare
-        run: |
-          chmod +x scripts/prepare-telegram-message.sh
-          source scripts/prepare-telegram-message.sh "${{ steps.release.outputs.release_tag }}" "${{ github.repository }}"
-          
-          echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-      - name: Send to Telegram
+      - name: Setup Kotlin
         run: |
-          THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
-          
-          # Thread param
-          THREAD_PARAM=""
-          if [ -n "$THREAD_ID" ]; then
-            THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
-          fi
-          
-          # Escape for MarkdownV2 and URL encode
-          MESSAGE_ENC=$(python3 scripts/escape-markdown.py)
-          
-          # Send
-          curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -H "Content-Type: application/json" \
-            -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$MESSAGE_ENC\", \"parse_mode\": \"MarkdownV2\"}"
+          curl -sL https://github.com/Kotlin/kotlin-nightly-release/releases/latest/download/kotlin-native-linux-x86_64-release.tar.gz -o /tmp/kotlin.tar.gz
+          mkdir -p /tmp/kotlin
+          tar -xzf /tmp/kotlin.tar.gz -C /tmp/kotlin --strip-components=1
+          echo "/tmp/kotlin/bin" >> $GITHUB_PATH
+
+      - name: Send Telegram notification
+        run: |
+          kotlin scripts/send-telegram.main.kts
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
+          RELEASE_TAG: ${{ env.RELEASE_TAG }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Summary
         run: |
           echo "## Telegram Notification" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Release: ${{ steps.release.outputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Thread: ${{ env.TELEGRAM_THREAD_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Release: ${{ env.RELEASE_TAG }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Thread: ${{ secrets.TELEGRAM_THREAD_ID }}" >> $GITHUB_STEP_SUMMARY
