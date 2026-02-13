@@ -1,8 +1,5 @@
 name: Upload to Telegram
 
-# This workflow runs after 'update-release-notes' workflow completes
-# Downloads all APK files from the latest release and uploads to Telegram
-# Supports posting to specific threads/topics in Telegram groups
 on:
   workflow_run:
     workflows: ["Update Release Notes", "update-release-notes"]
@@ -11,21 +8,18 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Release tag to download APKs from (defaults to latest)'
+        description: 'Release tag to use'
         required: false
         type: string
 
 env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-  # Chat ID can be: @username, channel ID (-100xxxx), or group ID
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-  # Thread/Topic ID for posting in specific topics (optional, leave empty for main chat)
   TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
 
 jobs:
-  upload-apks:
+  notify-telegram:
     runs-on: ubuntu-latest
-    # Only run if the triggering workflow succeeded or if manually dispatched
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
@@ -41,195 +35,47 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.release_tag }}" ]; then
             RELEASE_TAG="${{ github.event.inputs.release_tag }}"
           elif [ "${{ github.event_name }}" == "workflow_run" ]; then
-            # Get release tag from the triggering workflow
             RELEASE_TAG="${{ github.event.workflow_run.release_tag }}"
           fi
           
-          # If no release tag found, get the latest release
           if [ -z "$RELEASE_TAG" ]; then
             RELEASE_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
           fi
           
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
-          echo "Release tag: $RELEASE_TAG"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-      - name: Download APK files from release
-        id: download
+      - name: Prepare message
+        id: prepare
         run: |
-          RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
-          
-          # Create directory for APKs
-          mkdir -p apks
-          
-          # Download all APK files from the release
-          gh release download "$RELEASE_TAG" --pattern "*.apk" --dir apks || echo "No APK files found"
-          
-          # Show full directory structure
-          echo "=== Directory structure ==="
-          find . -type f -name "*.apk" 2>/dev/null || echo "No APK files found"
-          echo "=========================="
-          
-          # Count APK files
-          APK_COUNT=$(find apks -name "*.apk" -type f | wc -l)
-          echo "apk_count=$APK_COUNT" >> $GITHUB_OUTPUT
-          echo "Downloaded $APK_COUNT APK file(s)"
-          
-          # List downloaded files with full path
-          ls -la "$PWD/apks/" 2>/dev/null || echo "apks dir empty"
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-
-      - name: Check for APK files
-        id: check
-        run: |
-          if [ "${{ steps.download.outputs.apk_count }}" -eq 0 ]; then
-            echo "No APK files found in release. Skipping Telegram upload."
-            echo "has_apks=false" >> $GITHUB_OUTPUT
-          else
-            echo "has_apks=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Get release info and changelog
-        id: release_info
-        if: steps.check.outputs.has_apks == 'true'
-        run: |
-          RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
-          
-          # Get release body (contains changelog)
-          gh release view "$RELEASE_TAG" --json body --jq '.body // empty' > /tmp/release_body.txt
-          RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/$RELEASE_TAG"
+          chmod +x scripts/prepare-telegram-message.sh
+          source scripts/prepare-telegram-message.sh "${{ steps.release.outputs.release_tag }}" "${{ github.repository }}"
           
           echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
-          
-          # Extract changelog section (between ## Changelog and the note)
-          # Save to file to avoid shell escaping issues
-          sed -n '/## .*[Cc]hangelog/,/> \[!NOTE\]/p' /tmp/release_body.txt | head -n -1 | sed 's/> \[!NOTE\]//g' | sed '/^$/d' | head -50 > /tmp/changelog.txt
-          
-          # If no changelog found, try alternative pattern
-          if [ ! -s /tmp/changelog.txt ]; then
-            grep -A 50 "## .*[Cc]hangelog" /tmp/release_body.txt | head -50 > /tmp/changelog.txt
-          fi
-          
-          echo "Release URL: $RELEASE_URL"
-          echo "Changelog extracted to /tmp/changelog.txt"
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-      - name: Send release notification to Telegram
-        if: steps.check.outputs.has_apks == 'true'
+      - name: Send to Telegram
         run: |
-          RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
-          RELEASE_URL="${{ steps.release_info.outputs.release_url }}"
-          APK_COUNT="${{ steps.download.outputs.apk_count }}"
           THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
           
-          # Build thread_id parameter if specified
+          # Thread param
           THREAD_PARAM=""
           if [ -n "$THREAD_ID" ]; then
             THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
           fi
           
-          # Create message header with MarkdownV2 formatting
-          HEADER="*New ArchiveTune Nightly Release\\!*%0A%0AVersion: [$RELEASE_TAG]($RELEASE_URL)%0AAPK Files: $APK_COUNT"
+          # Read message and URL encode
+          MESSAGE=$(cat /tmp/message.txt)
+          MESSAGE_ENC=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$MESSAGE'''))")
           
-          # Send header message with thread support
-          curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          # Send
+          curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$HEADER\", \"parse_mode\": \"MarkdownV2\", \"disable_web_page_preview\": false}"
-
-      - name: Send changelog to Telegram
-        if: steps.check.outputs.has_apks == 'true'
-        run: |
-          THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
-          
-          # Build thread_id parameter if specified
-          THREAD_PARAM=""
-          if [ -n "$THREAD_ID" ]; then
-            THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
-          fi
-          
-          if [ -s /tmp/changelog.txt ]; then
-            # Use Python script to escape changelog for MarkdownV2
-            CHANGELOG_ESCAPED=$(python3 scripts/escape-changelog.py)
-            
-            MESSAGE="*Changelog:*%0A$CHANGELOG_ESCAPED"
-            
-            # Send changelog message with thread support
-            curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$MESSAGE\", \"parse_mode\": \"MarkdownV2\", \"disable_web_page_preview\": true}" || echo "Failed to send changelog"
-          fi
-
-      - name: Send APK download links to Telegram
-        if: steps.check.outputs.has_apks == 'true'
-        run: |
-          RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
-          THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
-          
-          # Build thread_id parameter if specified
-          THREAD_PARAM=""
-          if [ -n "$THREAD_ID" ]; then
-            THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
-          fi
-          
-          # Get absolute path to apks directory
-          APK_DIR="$PWD/apks"
-          
-          # Send download links for each APK
-          echo "Sending APK download links..."
-          
-          for APK_FILE in "$APK_DIR"/*.apk; do
-            if [ -f "$APK_FILE" ]; then
-              FILENAME=$(basename "$APK_FILE")
-              FILESIZE=$(stat -c%s "$APK_FILE")
-              
-              # Format file size in MB
-              SIZE_MB=$((FILESIZE / 1024 / 1024))
-              
-              # Create download URL
-              DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/$RELEASE_TAG/$FILENAME"
-              
-              MESSAGE="*Download $FILENAME*%0ASize: ${SIZE_MB}MB%0A[$DOWNLOAD_URL]($DOWNLOAD_URL)"
-              
-              echo "Sending link for: $FILENAME (${SIZE_MB}MB)"
-              
-              # Send download link message
-              curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$MESSAGE\", \"parse_mode\": \"MarkdownV2\", \"disable_web_page_preview\": false}"
-              
-              # Small delay between messages
-              sleep 1
-            fi
-          done
-
-      - name: Send completion message
-        if: steps.check.outputs.has_apks == 'true'
-        run: |
-          RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
-          APK_COUNT="${{ steps.download.outputs.apk_count }}"
-          RELEASE_URL="${{ steps.release_info.outputs.release_url }}"
-          THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
-          
-          # Build thread_id parameter if specified
-          THREAD_PARAM=""
-          if [ -n "$THREAD_ID" ]; then
-            THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
-          fi
-          
-          MESSAGE="*Upload complete\\!*%0A%0ARelease: $RELEASE_TAG%0AFiles available: $APK_COUNT APK file\\(s\\)%0A%0ADownload from the [release page]($RELEASE_URL) or use direct links above."
-          
-          curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -H "Content-Type: application/json" \
-            -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$MESSAGE\", \"parse_mode\": \"MarkdownV2\"}"
+            -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$MESSAGE_ENC\", \"parse_mode\": \"MarkdownV2\"}"
 
       - name: Summary
         run: |
-          echo "## Upload Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Telegram Notification" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Release Tag:** ${{ steps.release.outputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **APK Files Found:** ${{ steps.download.outputs.apk_count }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Method:** Download links sent to Telegram" >> $GITHUB_STEP_SUMMARY
-          echo "- **Thread ID:** ${{ env.TELEGRAM_THREAD_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Release: ${{ steps.release.outputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Thread: ${{ env.TELEGRAM_THREAD_ID }}" >> $GITHUB_STEP_SUMMARY
