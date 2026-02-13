@@ -2,6 +2,7 @@ name: Upload to Telegram
 
 # This workflow runs after 'update-release-notes' workflow completes
 # Downloads all APK files from the latest release and uploads to Telegram
+# Supports posting to specific threads/topics in Telegram groups
 on:
   workflow_run:
     workflows: ["Update Release Notes", "update-release-notes"]
@@ -16,7 +17,10 @@ on:
 
 env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  # Chat ID can be: @username, channel ID (-100xxxx), or group ID
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+  # Thread/Topic ID for posting in specific topics (optional, leave empty for main chat)
+  TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
 
 jobs:
   upload-apks:
@@ -122,24 +126,36 @@ jobs:
           RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
           RELEASE_URL="${{ steps.release_info.outputs.release_url }}"
           APK_COUNT="${{ steps.download.outputs.apk_count }}"
+          THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
+          
+          # Build thread_id parameter if specified
+          THREAD_PARAM=""
+          if [ -n "$THREAD_ID" ]; then
+            THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
+          fi
           
           # Create message header with MarkdownV2 formatting
-          # Escape special characters for MarkdownV2: _ * [ ] ( ) ~ ` > # + - = | { } . !
           HEADER="*New ArchiveTune Nightly Release\\!*%0A%0AVersion: [$RELEASE_TAG]($RELEASE_URL)%0AAPK Files: $APK_COUNT"
           
-          # Send header message
+          # Send header message with thread support
           curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\", \"text\": \"$HEADER\", \"parse_mode\": \"MarkdownV2\", \"disable_web_page_preview\": false}"
+            -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$HEADER\", \"parse_mode\": \"MarkdownV2\", \"disable_web_page_preview\": false}"
 
       - name: Send changelog to Telegram
         if: steps.check.outputs.has_apks == 'true'
         run: |
           CHANGELOG="${{ steps.release_info.outputs.changelog }}"
+          THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
+          
+          # Build thread_id parameter if specified
+          THREAD_PARAM=""
+          if [ -n "$THREAD_ID" ]; then
+            THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
+          fi
           
           if [ -n "$CHANGELOG" ]; then
             # Escape special characters for MarkdownV2
-            # Characters that need escaping: _ * [ ] ( ) ~ ` > # + - = | { } . !
             CHANGELOG_ESCAPED=$(echo "$CHANGELOG" | sed 's/\\/\\\\/g' | sed 's/_/\\_/g' | sed 's/\*/\\*/g' | sed 's/\[/\\[/g' | sed 's/\]/\\]/g' | sed 's/(/\\(/g' | sed 's/)/\\)/g' | sed 's/~/\\~/g' | sed 's/`/\\`/g' | sed 's/>/\\>/g' | sed 's/#/\\#/g' | sed 's/+/\\+/g' | sed 's/-/\\-/g' | sed 's/=/\\=/g' | sed 's/|/\\|/g' | sed 's/{/\\{/g' | sed 's/}/\\}/g' | sed 's/\./\\./g' | sed 's/!/\\!/g')
             
             # Truncate if too long (Telegram limit is 4096 chars)
@@ -147,17 +163,17 @@ jobs:
             
             MESSAGE="*Changelog:*%0A$CHANGELOG_TRUNCATED"
             
-            # URL encode the message for JSON
-            # Send changelog message
+            # Send changelog message with thread support
             curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
               -H "Content-Type: application/json" \
-              -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\", \"text\": \"$MESSAGE\", \"parse_mode\": \"MarkdownV2\", \"disable_web_page_preview\": true}" || echo "Failed to send changelog"
+              -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$MESSAGE\", \"parse_mode\": \"MarkdownV2\", \"disable_web_page_preview\": true}" || echo "Failed to send changelog"
           fi
 
       - name: Upload APK files to Telegram
         if: steps.check.outputs.has_apks == 'true'
         run: |
           RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
+          THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
           
           # Upload each APK file
           for APK_FILE in apks/*.apk; do
@@ -172,16 +188,32 @@ jobs:
                 echo "Warning: File $FILENAME exceeds 50MB limit. Skipping direct upload."
                 # Send a message with download link instead
                 DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/$RELEASE_TAG/$FILENAME"
+                
+                # Build thread_id parameter for message
+                THREAD_PARAM=""
+                if [ -n "$THREAD_ID" ]; then
+                  THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
+                fi
+                
                 curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
                   -H "Content-Type: application/json" \
-                  -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\", \"text\": \"File *${FILENAME}* is too large for direct upload \\\\(${FILESIZE} bytes\\\\)\\.\\n[Download directly](${DOWNLOAD_URL})\", \"parse_mode\": \"MarkdownV2\"}"
+                  -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"File *${FILENAME}* is too large for direct upload \\\\(${FILESIZE} bytes\\\\)\\.\\n[Download directly](${DOWNLOAD_URL})\", \"parse_mode\": \"MarkdownV2\"}"
               else
-                # Upload file to Telegram
-                curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendDocument" \
-                  -F "chat_id=${{ env.TELEGRAM_CHAT_ID }}" \
-                  -F "document=@$APK_FILE" \
-                  -F "caption=Release: $RELEASE_TAG - $FILENAME" \
-                  -F "parse_mode=Markdown"
+                # Upload file to Telegram with thread support
+                if [ -n "$THREAD_ID" ]; then
+                  curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendDocument" \
+                    -F "chat_id=${{ env.TELEGRAM_CHAT_ID }}" \
+                    -F "message_thread_id=$THREAD_ID" \
+                    -F "document=@$APK_FILE" \
+                    -F "caption=Release: $RELEASE_TAG - $FILENAME" \
+                    -F "parse_mode=Markdown"
+                else
+                  curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendDocument" \
+                    -F "chat_id=${{ env.TELEGRAM_CHAT_ID }}" \
+                    -F "document=@$APK_FILE" \
+                    -F "caption=Release: $RELEASE_TAG - $FILENAME" \
+                    -F "parse_mode=Markdown"
+                fi
                 
                 echo "Uploaded: $FILENAME"
               fi
@@ -197,12 +229,19 @@ jobs:
           RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
           APK_COUNT="${{ steps.download.outputs.apk_count }}"
           RELEASE_URL="${{ steps.release_info.outputs.release_url }}"
+          THREAD_ID="${{ env.TELEGRAM_THREAD_ID }}"
+          
+          # Build thread_id parameter if specified
+          THREAD_PARAM=""
+          if [ -n "$THREAD_ID" ]; then
+            THREAD_PARAM=", \"message_thread_id\": \"$THREAD_ID\""
+          fi
           
           MESSAGE="*Upload complete\\!*%0A%0ARelease: $RELEASE_TAG%0AFiles uploaded: $APK_COUNT APK file\\(s\\)%0A%0ADownload all files from the [release page]($RELEASE_URL)."
           
           curl -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\", \"text\": \"$MESSAGE\", \"parse_mode\": \"MarkdownV2\"}"
+            -d "{\"chat_id\": \"${{ env.TELEGRAM_CHAT_ID }}\"$THREAD_PARAM, \"text\": \"$MESSAGE\", \"parse_mode\": \"MarkdownV2\"}"
 
       - name: Summary
         run: |
@@ -211,3 +250,4 @@ jobs:
           echo "- **Release Tag:** ${{ steps.release.outputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
           echo "- **APK Files Found:** ${{ steps.download.outputs.apk_count }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Uploaded to Telegram:** ${{ steps.check.outputs.has_apks }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Thread ID:** ${{ env.TELEGRAM_THREAD_ID }}" >> $GITHUB_STEP_SUMMARY
