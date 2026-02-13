@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "225eea94f9babdb5d2413e5c1be908e1af2d74c1",
-    "message": "feat(TogetherOnlineEndpoint): add IPv4 address host check to `normalizeBaseUrl"
+    "sha": "3e6991f3c3a2d065fc073aaec8db2e04a6def3d4",
+    "message": "refactor(MusicService): Remove denied Together action Toasts"
   }
 }
