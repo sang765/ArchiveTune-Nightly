@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "b5d1a85a8aac037c1d4f0295614c5e0e014068ae",
-    "message": "fix(MusicService): adjust synchronization timeouts and drift thresholds"
+    "sha": "674d840457fa121b756f95ed02e093d4f025fc73",
+    "message": "chore(ArchiveTuneKoiverseServer): Update server URL"
   }
 }
