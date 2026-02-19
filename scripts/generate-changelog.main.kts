@@ -83,7 +83,7 @@ fun fetchCommits(owner: String, repo: String, sinceSha: String, untilSha: String
 }
 
 fun formatChangelog(commits: JsonArray): String {
-    val sb = StringBuilder("## ✨ Changelog\n\n")
+    val sb = StringBuilder("## ✨ Changelog\n\n### App Changelog:\n\n")
     
     // Check if commits is empty
     if (commits.size() == 0) {
