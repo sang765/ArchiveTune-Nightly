@@ -102,6 +102,7 @@ jobs:
           sed -i 's|https://github.com/koiverse/ArchiveTune/releases|https://github.com/sang765/ArchiveTune-Nightly/releases|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
           sed -i 's/ArchiveTune.apk/ArchiveTune-Nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
           sed -i 's/app-${architecture}-release.apk/app-${architecture}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+          sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases?per_page=$perPage|https://api.github.com/repos/sang765/ArchiveTune-Nightly/releases?per_page=$perPage|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build Release APK
         run: |
