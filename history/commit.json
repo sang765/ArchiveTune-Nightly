@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "6052871ecb5ae2be19773f41978c2c51b25b6797",
-    "message": "style(PlayerComponents): Use textButtonColor for PlayerPlaybackControls color"
+    "sha": "8694c919296bb557b58a210759f553b2ba91a4b7",
+    "message": "fix(playback): improve handoff transition stability and timing"
   }
 }
