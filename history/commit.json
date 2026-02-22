@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "5566dd2ec02e1d9081eecb17379184d927b0d4aa",
-    "message": "refactor(PlayerSettings.kt): remove android music player stream client option"
+    "sha": "27d3968e9e096ae52ca5c175830842b66ce4a8b0",
+    "message": "style(drawables): adjust drawable dimensions"
   }
 }
