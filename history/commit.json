@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "27d3968e9e096ae52ca5c175830842b66ce4a8b0",
-    "message": "style(drawables): adjust drawable dimensions"
+    "sha": "b572694cdcb426477dd9d3c9888808b2d932445e",
+    "message": "fix(SongMenu): improve playlist song removal with maxPlaylistSongPosition and database setVideoId lookup"
   }
 }
