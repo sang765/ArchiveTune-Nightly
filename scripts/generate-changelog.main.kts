@@ -170,7 +170,7 @@ fun formatChangelog(commits: JsonArray): String {
             }
 
             // Create log line
-            sb.append("- <code>$date</code>: [<code>${sha.take(7)}</code>](https://github.com/koiverse/ArchiveTune/commit/$sha) - **\"$message\"** by @$author\n")
+            sb.append("- `$date`: [`${sha.take(7)}`](https://github.com/koiverse/ArchiveTune/commit/$sha) - **\"$message\"** by (@$author)\n")
         } catch (e: Exception) {
             println("Warning: Error processing commit: ${e.message}")
             e.printStackTrace()
