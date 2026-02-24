@@ -9,8 +9,12 @@
 
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?branch=main&style=for-the-badge&logo=github&label=Status)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml)
 [![GitHub Stars](https://img.shields.io/github/stars/sang765/ArchiveTune-Nightly?style=for-the-badge&color=6366f1&labelColor=1e1e2e&logo=github)](https://github.com/sang765/ArchiveTune-Nightly)
-[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?style=for-the-badge&logo=Github&label=NIGHTLY%20DOWNLOAD&color=ff00ff)](https://github.com/sang765/ArchiveTune-Nightly/releases)  
-<img src="images/badges/last-nightly-build.svg" alt="Last Nightly Build" style="height: 28px;">
+[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?style=for-the-badge&logo=downdetector&label=DOWNLOAD%20COUNT&color=ff00ff)](https://github.com/sang765/ArchiveTune-Nightly/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/sang765/ArchiveTune-Nightly?display_name=release&style=for-the-badge&logo=Github&color=000fa0)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+[![GitHub License](https://img.shields.io/github/license/sang765/ArchiveTune-Nightly?style=for-the-badge&logo=gplv3&logoColor=%23BD0000&color=%23BD0000)](./LICENSE)  
+<a href="https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml">
+  <img src="images/badges/last-nightly-build.svg" alt="Last Nightly Build" style="height: 28px;">
+</a>
 
 </div>
 
