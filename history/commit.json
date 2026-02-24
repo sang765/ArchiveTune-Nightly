@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "b572694cdcb426477dd9d3c9888808b2d932445e",
-    "message": "fix(SongMenu): improve playlist song removal with maxPlaylistSongPosition and database setVideoId lookup"
+    "sha": "30c1d3947e3fc53e176c899ff70be68f25e6e714",
+    "message": "feat(YearInMusicScreen): implement rememberShareSafeImageRequest for image handling #321"
   }
 }
