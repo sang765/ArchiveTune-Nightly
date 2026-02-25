@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "30c1d3947e3fc53e176c899ff70be68f25e6e714",
-    "message": "feat(YearInMusicScreen): implement rememberShareSafeImageRequest for image handling #321"
+    "sha": "60769d9bcc0eac374ba3c9031bb46631f571a8b2",
+    "message": "refactor(LocalBackdrop): switch LocalGlassBackdrop to LayerBackdrop type"
   }
 }
