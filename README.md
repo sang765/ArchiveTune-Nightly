@@ -30,6 +30,7 @@
 
 > [!WARNING]
 > - This is **unofficial** Nightly build of AchieveTune. If you wanna download official ArchiveTune, please check out this [repository](https://github.com/koiverse/ArchiveTune).
+> - We **DO NOT ACCEPT** any issues, bug reports, or new ideas on "this repository". If you wanna create an issue or bug report, please create it [here](https://github.com/koiverse/ArchiveTune/issues/new/choose).
 
 This repository contains the nightly build setup for ArchiveTune, an advanced YouTube Music client for Android. Read bellow to read more about this app.
 
@@ -342,6 +343,8 @@ This project is set up for development in Firebase Studio (IDX) with Nix environ
 
 </div>
 
+---
+
 **Repository secrets:**  
 - `SIGNING_KEY_BASE64`: Your key convent to base64 strings. You can converter your key into base64 with this command.  
 ```bash
@@ -358,7 +361,17 @@ openssl base64 < YOUR_SIGN_KEY_NAME_HERE.jks | tr -d '\n' | tee YOUR_SIGN_KEY_NA
 + "Workflows" for cancel workflows if build failed (optional).
 ```
 
+**Optional Repository Secrect:**
+- `TELEGRAM_BOT_TOKEN`: Telegram bot token for login and send message to Telegram
+- `TELEGRAM_CHAT_ID`: Your therd group behind invite URL (e.g https://t.me/ArchiveTuneGC => `ArchiveTuneGC`)
+- `TELEGRAM_THREAD_ID`: Number theard ID channel you want post (e.g https://t.me/ArchiveTuneGC/1483 => `1483`)
 
+> [!NOTE]
+> - This ONLY work in Telegram Theard Channel. If dont have theard group so you don need this.
+
+---
+
+**Some other things you'll need:**
 - Firebase Studio (IDX) workspace or VSCode
 - [openssl](https://github.com/openssl/openssl/blob/master/INSTALL.md#installation-steps-in-detail) for coventer your key to base64
 - keytool: You can use Java to have keytool command.
