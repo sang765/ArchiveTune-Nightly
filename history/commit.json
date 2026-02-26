@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "60769d9bcc0eac374ba3c9031bb46631f571a8b2",
-    "message": "refactor(LocalBackdrop): switch LocalGlassBackdrop to LayerBackdrop type"
+    "sha": "4ec4fc596debcac4dbd8269eb9ed261ba790f080",
+    "message": "refactor(MusicService): replace SimilarContent with AutoLoadMoreKey in relevant components"
   }
 }
