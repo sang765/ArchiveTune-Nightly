@@ -17,16 +17,14 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v6.2.0
+      - name: Set up Kotlin
+        uses: actions/setup-java@v2
         with:
-          python-version: '3.x'
+          java-version: '17'
+          distribution: 'temurin'
 
-      - name: Install dependencies
-        run: pip install requests
-
-      - name: Run sync_readme.py
-        run: python sync_readme.py
+      - name: Run sync-readme.kts
+        run: kotlin scripts/sync-readme.main.kts
 
       - name: Check for changes and commit
         run: |
