@@ -1,1 +1,10 @@
-{"dependencies":{"@genkit-ai/mcp":"^1.28.0","canvas":"^3.2.1","sharp":"^0.34.5","skia-canvas":"^3.0.8"}}
+{
+  "dependencies": {
+    "canvas": "^3.2.1",
+    "sharp": "^0.34.5",
+    "skia-canvas": "^3.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.2"
+  }
+}

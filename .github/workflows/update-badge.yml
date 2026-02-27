@@ -26,6 +26,8 @@ jobs:
 
       - name: Generate badge
         run: bun run scripts/generate-badge.ts
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Commit and push badge
         run: |

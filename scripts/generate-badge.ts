@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 
 async function getLastBuildTime(): Promise<string> {
-  const url = 'https://api.github.com/repos/sang765/ArchiveTune-Nightly/actions/runs?per_page=10';
+  const repo = process.env.GITHUB_REPOSITORY || 'sang765/ArchiveTune-Nightly';
+  const url = `https://api.github.com/repos/${repo}/actions/runs?per_page=10`;
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch: ${response.status}`);
