@@ -70,6 +70,45 @@ jobs:
       - name: Get Time
         id: time
         run: echo "time=$(date +'%I:%M:%S %p')" >> $GITHUB_OUTPUT
+      
+      - name: Get Release Assets
+        id: assets
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          RELEASE_TAG: ${{ github.event.client_payload.new_version }}
+        run: |
+          DOWNLOAD_TABLE="No APK files found in this release."
+          
+          if [ -n "$RELEASE_TAG" ]; then
+            echo "Fetching assets for release: $RELEASE_TAG"
+            
+            RELEASE_JSON=$(gh release view "$RELEASE_TAG" --json assets)
+            
+            DOWNLOAD_TABLE=$(echo "$RELEASE_JSON" | jq -r '
+              .assets[] | 
+              select(.name | endswith(".apk")) |
+              "| \(
+                if .name == "ArchiveTune-Nightly.apk" then "**Universal**"
+                elif .name | test("arm64"; "i") then "**arm64** (64-bit Phone)"
+                elif .name | test("armeabi"; "i") then "**armeabi** (32-bit Phone)"
+                elif .name | test("x86_64"; "i") then "**x86_64** (64-bit Tablet)"
+                elif .name | test("x86"; "i") then "**x86** (32-bit Tablet)"
+                else .name end
+              ) | \( (.size / 1048576) | floor * 100 / 100 ) MB | [\(.name)](\(.url)) |'
+            )
+            
+            if [ -n "$DOWNLOAD_TABLE" ]; then
+              DOWNLOAD_TABLE="| **ABI** | **Size** | **Download** |
+              |-----|-----|-----|
+              $DOWNLOAD_TABLE"
+              fi
+            fi
+          
+          {
+            echo "download_table<<EOF"
+            echo "$DOWNLOAD_TABLE"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Read changelog
         id: changelog
@@ -87,6 +126,10 @@ jobs:
           Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }} (UTC +0)**
 
           ${{ steps.changelog.outputs.changelog }}
+          
+          ## 📦 Download
+
+          ${{ steps.assets.outputs.download_table }}
           
           > [!NOTE]  
           > If this version broken something, please react 👀 in this release. Thank you.
