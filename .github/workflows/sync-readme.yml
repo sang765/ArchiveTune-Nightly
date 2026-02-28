@@ -29,7 +29,7 @@ jobs:
       # Change my repository name in "temp/README.md" can make your document broken, so CREAFULLY
       - name: Your fork, your documentation
         run: |
-          sed -i 's|sang765/ArchiveTune|${{ github.repository }}|g' README.md
+          sed -i 's|sang765/ArchiveTune-Nightly|${{ github.repository }}|g' README.md
 
       - name: Check for changes and commit
         run: |
