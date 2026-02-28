@@ -1,5 +1,5 @@
 <div align="center">
-<img width="150" height="150" src="https://raw.githubusercontent.com/sang765/ArchiveTune-Nightly-Nightly/main/images/logo.gif" alt="Archivetune">
+<img width="150" height="150" src="https://raw.githubusercontent.com/sang765/ArchiveTune-Nightly/main/images/logo.gif" alt="Archivetune">
 
 # <img width="30" height="30" src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" alt="Archivetune"> ArchiveTune Nightly <img width="30" height="30" src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" alt="Archivetune">
 **CI build for Nightly version of [ArchiveTune](https://github.com/koiverse/ArchiveTune). Redefining the YouTube Music Experience on Android.**  
@@ -7,12 +7,12 @@
 
 <sub>Don't forget to leave a ⭐ for this repository if you visit. Thank you so much ♥️</sub>
 
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly-Nightly/nightly-build.yml?branch=main&style=for-the-badge&logo=github&label=Status)](https://github.com/sang765/ArchiveTune-Nightly-Nightly/actions/workflows/nightly-build.yml)
-[![GitHub Stars](https://img.shields.io/github/stars/sang765/ArchiveTune-Nightly-Nightly?style=for-the-badge&color=6366f1&labelColor=1e1e2e&logo=github)](https://github.com/sang765/ArchiveTune-Nightly-Nightly)
-[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly-Nightly/total?style=for-the-badge&logo=downdetector&label=DOWNLOAD%20COUNT&color=ff00ff)](https://github.com/sang765/ArchiveTune-Nightly-Nightly/releases)
-[![GitHub Release](https://img.shields.io/github/v/release/sang765/ArchiveTune-Nightly-Nightly?display_name=release&style=for-the-badge&logo=Github&color=000fa0)](https://github.com/sang765/ArchiveTune-Nightly-Nightly/releases/latest)
-[![GitHub License](https://img.shields.io/github/license/sang765/ArchiveTune-Nightly-Nightly?style=for-the-badge&logo=gplv3&logoColor=%23BD0000&color=%23BD0000)](./LICENSE)  
-<a href="https://github.com/sang765/ArchiveTune-Nightly-Nightly/actions/workflows/nightly-build.yml">
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?branch=main&style=for-the-badge&logo=github&label=Status)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml)
+[![GitHub Stars](https://img.shields.io/github/stars/sang765/ArchiveTune-Nightly?style=for-the-badge&color=6366f1&labelColor=1e1e2e&logo=github)](https://github.com/sang765/ArchiveTune-Nightly)
+[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?style=for-the-badge&logo=downdetector&label=DOWNLOAD%20COUNT&color=ff00ff)](https://github.com/sang765/ArchiveTune-Nightly/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/sang765/ArchiveTune-Nightly?display_name=release&style=for-the-badge&logo=Github&color=000fa0)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+[![GitHub License](https://img.shields.io/github/license/sang765/ArchiveTune-Nightly?style=for-the-badge&logo=gplv3&logoColor=%23BD0000&color=%23BD0000)](./LICENSE)  
+<a href="https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml">
   <img src="images/badges/last-nightly-build.svg" alt="Last Nightly Build" style="height: 28px;">
 </a>
 
@@ -24,7 +24,7 @@
 
 | Stable | Nightly |
 |----------|---------|
-| <div align="center"> [![Stable build](https://img.shields.io/github/actions/workflow/status/koiverse/ArchiveTune/release.yml?labelColor=27303D&label=Stable&labelColor=06599d&color=043b69)](https://github.com/koiverse/ArchiveTune/actions/workflows/release.yml) <br> [![GitHub downloads](https://img.shields.io/github/downloads/koiverse/ArchiveTune/latest/total?label=Latest%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/koiverse/ArchiveTune/releases/latest) [![GitHub downloads](https://img.shields.io/github/downloads/koiverse/ArchiveTune/total?label=Total%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/koiverse/ArchiveTune/releases) </div> | <div align="center"> [![Nightly build](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly-Nightly/nightly-build.yml?labelColor=27303D&label=Nightly&labelColor=2c2c47&color=1c1c39)](https://github.com/sang765/ArchiveTune-Nightly-Nightly/actions/workflows/nightly-build.yml) <br> [![GitHub downloads](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly-Nightly/latest/total?label=Latest%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/sang765/ArchiveTune-Nightly-Nightly/releases/latest) [![GitHub downloads](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly-Nightly/total?label=Total%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/sang765/ArchiveTune-Nightly-Nightly/releases) </div> |
+| <div align="center"> [![Stable build](https://img.shields.io/github/actions/workflow/status/koiverse/ArchiveTune/release.yml?labelColor=27303D&label=Stable&labelColor=06599d&color=043b69)](https://github.com/koiverse/ArchiveTune/actions/workflows/release.yml) <br> [![GitHub downloads](https://img.shields.io/github/downloads/koiverse/ArchiveTune/latest/total?label=Latest%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/koiverse/ArchiveTune/releases/latest) [![GitHub downloads](https://img.shields.io/github/downloads/koiverse/ArchiveTune/total?label=Total%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/koiverse/ArchiveTune/releases) </div> | <div align="center"> [![Nightly build](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?labelColor=27303D&label=Nightly&labelColor=2c2c47&color=1c1c39)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml) <br> [![GitHub downloads](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/latest/total?label=Latest%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![GitHub downloads](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?label=Total%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/sang765/ArchiveTune-Nightly/releases) </div> |
 
 </div>
 
