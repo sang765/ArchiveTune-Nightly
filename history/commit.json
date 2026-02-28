@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "dbe806229315c7af4e8cfea21ec50b5656744da7",
-    "message": "fix(DataStore): increase timeout duration for data retrieval"
+    "sha": "0b100ab5f76efd662c021b5cddc40190c121f162",
+    "message": "feat(MusicService): enhance media item addition logic with improved filtering and related candidates"
   }
 }
