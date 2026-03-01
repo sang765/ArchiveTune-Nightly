@@ -1,25 +1,9 @@
 name: Update Release Notes
 
-# Changelog generation supports two engines:
-# - typescript (default): Uses Bun to run scripts/generate-changelog.ts
-# - kotlin: Uses Kotlin to run scripts/generate-changelog.main.kts
 on:
   repository_dispatch:
     types: [update-release-notes]
   workflow_dispatch:
-    inputs:
-      changelog_engine:
-        description: 'Changelog generation engine'
-        required: false
-        default: 'typescript'
-        type: choice
-        options:
-          - typescript
-          - kotlin
-
-env:
-  # Set changelog engine from input, default to typescript
-  CHANGELOG_ENGINE: ${{ github.event.client_payload.changelog_engine || github.event.inputs.changelog_engine || 'typescript' }}
 
 jobs:
   update:
@@ -32,22 +16,15 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      # Setup Bun for TypeScript changelog generation (runs when engine is typescript)
-      - name: Setup Bun
-        if: env.CHANGELOG_ENGINE == 'typescript'
-        uses: oven-sh/setup-bun@v2.1.2
-
-      # Setup Java for Kotlin changelog generation (runs when engine is kotlin)
+      # Setup Java for Kotlin changelog generation
       - name: Setup Java
-        if: env.CHANGELOG_ENGINE == 'kotlin'
         uses: actions/setup-java@v5.2.0
         with:
           distribution: temurin
           java-version: '21'
 
-      # Setup Kotlin for Kotlin changelog generation (runs when engine is kotlin)
+      # Setup Kotlin for Kotlin changelog generation
       - name: Setup Kotlin
-        if: env.CHANGELOG_ENGINE == 'kotlin'
         run: |
           # Install Kotlin compiler manually using SDKMAN or download directly
           curl -s "https://get.sdkman.io" | bash
@@ -55,12 +32,7 @@ jobs:
           sdk install kotlin 1.9.24
           echo "$HOME/.sdkman/candidates/kotlin/current/bin" >> $GITHUB_PATH
 
-      - name: Generate changelog (TypeScript)
-        if: env.CHANGELOG_ENGINE == 'typescript'
-        run: bun run scripts/generate-changelog.ts
-
-      - name: Generate changelog (Kotlin)
-        if: env.CHANGELOG_ENGINE == 'kotlin'
+      - name: Generate changelog
         run: kotlin scripts/generate-changelog.main.kts
 
       - name: Get Date
