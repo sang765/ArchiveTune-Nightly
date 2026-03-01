@@ -18,14 +18,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2.1.2
-
-      - name: Install dependencies
-        run: bun install
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Generate badge
-        run: bun run scripts/generate-badge.ts
+        run: kotlin scripts/generate-badge.main.kts
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
