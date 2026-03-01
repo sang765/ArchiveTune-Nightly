@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "0b100ab5f76efd662c021b5cddc40190c121f162",
-    "message": "feat(MusicService): enhance media item addition logic with improved filtering and related candidates"
+    "sha": "031936cb131d25e93d94c2a8ab351a2c18d264f0",
+    "message": "feat(PlayerSettings): add support for Android Music client in player settings"
   }
 }
