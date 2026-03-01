@@ -100,7 +100,7 @@ openssl base64 < YOUR_SIGN_KEY_NAME_HERE.jks | tr -d '\n' | tee YOUR_SIGN_KEY_NA
 
 <div align="center">
 
-### ✈️ Setup ✈️
+### ✈️ Setup (Firebase Studio) ✈️
 
 </div>
 
