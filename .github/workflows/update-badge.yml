@@ -38,5 +38,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "ci(badge): Update last complete build date and time"
+            git pull --rebase origin main
             git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git main
           fi
