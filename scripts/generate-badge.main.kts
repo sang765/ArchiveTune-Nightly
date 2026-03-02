@@ -63,6 +63,11 @@ fun generateBadge() {
 
         val svg = """
             <svg width="$width" height="$height" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <style>
+                  @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+                </style>
+              </defs>
               <rect x="0" y="0" width="$width" height="$height" rx="30" ry="30" fill="#A5D6A7"/>
               <g transform="translate($groupPadding, $groupPadding)">
                 <circle cx="20" cy="20" r="20" fill="none" stroke="#2E7D32" stroke-width="3"/>
