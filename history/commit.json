@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "031936cb131d25e93d94c2a8ab351a2c18d264f0",
-    "message": "feat(PlayerSettings): add support for Android Music client in player settings"
+    "sha": "d76d39e9d2e9a97737439a05932ea3a03dc19d11",
+    "message": "feat(Player): enrich media metadata handling in BottomSheetPlayer"
   }
 }
