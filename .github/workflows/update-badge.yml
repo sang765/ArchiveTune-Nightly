@@ -31,8 +31,8 @@ jobs:
 
       - name: Commit and push badge
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.name 'sang765'
+          git config --global user.email 'bemimnitran@gmail.com'
           git add images/badges/last-nightly-build.svg
           if git diff --staged --quiet; then
             echo "No changes to commit"

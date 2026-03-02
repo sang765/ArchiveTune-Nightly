@@ -36,8 +36,8 @@ jobs:
           if git diff --quiet README.md; then
             echo "No changes to README.md"
           else
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+            git config --global user.name 'sang765'
+            git config --global user.email 'bemimnitran@gmail.com'
             git add README.md
             git commit -m "ci(docs): Sync README.md content from https://github.com/koiverse/ArchiveTune"
             git pull --rebase origin main
