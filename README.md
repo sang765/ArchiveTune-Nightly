@@ -9,8 +9,8 @@
 
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?branch=main&style=for-the-badge&logo=github&label=Status&labelColor=1e1e2e)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml)
 [![GitHub Stars](https://img.shields.io/github/stars/sang765/ArchiveTune-Nightly?style=for-the-badge&color=6366f1&labelColor=1e1e2e&logo=github)](https://github.com/sang765/ArchiveTune-Nightly)
-[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?style=for-the-badge&logo=downdetector&label=DOWNLOAD%20COUNT&color=ff00ff1&labelColor=1e1e2e)](https://github.com/sang765/ArchiveTune-Nightly/releases)
-[![GitHub Release](https://img.shields.io/github/v/release/sang765/ArchiveTune-Nightly?display_name=release&style=for-the-badge&logo=Github&color=000fa01&labelColor=1e1e2e)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?style=for-the-badge&&label=DOWNLOAD%20COUNT&labelColor=1e1e2e&color=ff00ff&logo=downdetector)](https://github.com/sang765/ArchiveTune-Nightly/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/sang765/ArchiveTune-Nightly?display_name=release&style=for-the-badge&logo=Github&color=000fa0&labelColor=1e1e2e)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
 [![GitHub License](https://img.shields.io/github/license/sang765/ArchiveTune-Nightly?style=for-the-badge&labelColor=1e1e2e&logo=gplv3&logoColor=%23BD0000&color=%23BD0000)](./LICENSE)  
 <a href="https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml">
   <img src="images/badges/last-nightly-build.svg" alt="Last Nightly Build" style="height: 28px;">
@@ -379,21 +379,19 @@ openssl base64 < YOUR_SIGN_KEY_NAME_HERE.jks | tr -d '\n' | tee YOUR_SIGN_KEY_NA
 
 <div align="center">
 
-### ✈️ Setup (Firebase Studio) ✈️
-
-</div>
-
-1. Open this repository in Firebase Studio
-2. The `.idx/dev.nix` file defines the development environment with Android tools
-3. Customize the environment as needed for your development workflow
-
-<div align="center">
-
 ### ⚒️ Build ⚒️
 
 </div>
 
 - For nightly builds, see `.github/workflows/nightly-build.yml`
+
+<div align="center">
+
+### 🔰 License 🔰
+
+[![GNU GPLv3 Image](https://www.gnu.org/graphics/gplv3-127x51.png)](http://www.gnu.org/licenses/gpl-3.0.en.html)
+
+</div>
 
 <div align="center">
 
