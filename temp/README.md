@@ -100,21 +100,19 @@ openssl base64 < YOUR_SIGN_KEY_NAME_HERE.jks | tr -d '\n' | tee YOUR_SIGN_KEY_NA
 
 <div align="center">
 
-### ✈️ Setup (Firebase Studio) ✈️
-
-</div>
-
-1. Open this repository in Firebase Studio
-2. The `.idx/dev.nix` file defines the development environment with Android tools
-3. Customize the environment as needed for your development workflow
-
-<div align="center">
-
 ### ⚒️ Build ⚒️
 
 </div>
 
 - For nightly builds, see `.github/workflows/nightly-build.yml`
+
+<div align="center">
+
+### 🔰 License 🔰
+
+[![GNU GPLv3 Image](https://www.gnu.org/graphics/gplv3-127x51.png)](http://www.gnu.org/licenses/gpl-3.0.en.html)
+
+</div>
 
 <div align="center">
 
