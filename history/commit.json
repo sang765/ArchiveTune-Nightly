@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "4502809573f5278d98569e2f3a4f18699fe0cde9",
-    "message": "feat(CrossfadeAudio): add handoff timeout to improve audio transition handling"
+    "sha": "e1ce97fcfc64c7b0c21df00fc5d5668f6dea9f36",
+    "message": "Merge pull request #357 from koiverse/renovate/ktor-monorepo\n\nfix(deps): update ktor monorepo to v3.4.1"
   }
 }
