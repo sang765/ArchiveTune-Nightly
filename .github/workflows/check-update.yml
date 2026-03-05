@@ -10,10 +10,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout
+      - name: 🔎 Checkout
         uses: actions/checkout@v6.0.2
 
-      - name: Get current SHA from history
+      - name: 📃 Get current SHA from history
         id: current_sha
         run: |
           if [ -f history/commit.json ]; then
@@ -24,7 +24,7 @@ jobs:
           echo "CURRENT_SHA=$SHA" >> $GITHUB_ENV
           echo "Current SHA is: $SHA"
 
-      - name: Get latest commit info from upstream
+      - name: 🔎 Get latest commit info from upstream
         run: |
           RESPONSE=$(curl -s https://api.github.com/repos/koiverse/ArchiveTune/commits/dev)
           
@@ -39,7 +39,7 @@ jobs:
             echo "EOF"
           } >> $GITHUB_ENV
 
-      - name: Compare SHAs
+      - name: 🔄 Compare SHAs
         run: |
           echo "Comparing Local: $CURRENT_SHA with Remote: $LATEST_SHA"
           if [ "$CURRENT_SHA" == "$LATEST_SHA" ]; then
@@ -50,7 +50,7 @@ jobs:
             echo "SKIP=false" >> $GITHUB_ENV
           fi
 
-      - name: Trigger nightly build
+      - name: 📞 Trigger nightly build
         if: env.SKIP == 'false'
         run: |
           curl -X POST \

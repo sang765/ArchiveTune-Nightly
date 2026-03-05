@@ -9,7 +9,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Check for update
+      - name: 🔄 Check for update
         uses: actions/github-script@v8
         with:
           script: |

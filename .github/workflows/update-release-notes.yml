@@ -11,20 +11,20 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout
+      - name: 🔎 Checkout
         uses: actions/checkout@v6.0.2
         with:
           token: ${{ secrets.PAT_TOKEN || github.token }}
 
       # Setup Java for Kotlin changelog generation
-      - name: Setup Java
+      - name: ☕ Setup Java
         uses: actions/setup-java@v5.2.0
         with:
           distribution: temurin
           java-version: '21'
 
       # Setup Kotlin for Kotlin changelog generation
-      - name: Setup Kotlin
+      - name: 🐘 Setup Kotlin
         run: |
           # Install Kotlin compiler manually using SDKMAN or download directly
           curl -s "https://get.sdkman.io" | bash
@@ -32,18 +32,18 @@ jobs:
           sdk install kotlin 1.9.24
           echo "$HOME/.sdkman/candidates/kotlin/current/bin" >> $GITHUB_PATH
 
-      - name: Generate changelog
+      - name: 🐘 Generate changelog
         run: kotlin scripts/generate-changelog.main.kts
 
-      - name: Get Date
+      - name: 🗓️ Get Date
         id: date
         run: echo "date=$(date +'%Y/%m/%d')" >> $GITHUB_OUTPUT
 
-      - name: Get Time
+      - name: ⏳ Get Time
         id: time
         run: echo "time=$(date +'%I:%M:%S %p')" >> $GITHUB_OUTPUT
 
-      - name: Read changelog
+      - name: 📃 Read changelog
         id: changelog
         run: |
           CHANGELOG=$(cat changelog.md)
@@ -53,7 +53,7 @@ jobs:
             echo "EOF"
           } >> $GITHUB_OUTPUT
 
-      - name: Update release notes
+      - name: 🔄 Update release notes
         run: |
           BODY=$(cat << 'EOF'
           Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} - ${{ steps.time.outputs.time }} (UTC +0)**
@@ -69,7 +69,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
 
-      - name: Update history
+      - name: 🔄 Update history
         run: |
           RESPONSE=$(curl -s https://api.github.com/repos/koiverse/ArchiveTune/commits/dev)
           LATEST_SHA=$(echo $RESPONSE | jq -r '.sha')
@@ -83,7 +83,7 @@ jobs:
              echo "{\"commit\": {\"sha\": \"$LATEST_SHA\", \"message\": \"$MESSAGE\", \"repository\": \"koiverse/ArchiveTune\", \"branch\": \"dev\"}}" > history/commit.json
           fi
 
-      - name: Commit and push
+      - name: 📤 Commit and push
         run: |
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@users.noreply.github.com'

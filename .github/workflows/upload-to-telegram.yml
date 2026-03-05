@@ -27,10 +27,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout
+      - name: 🔎 Checkout
         uses: actions/checkout@v6.0.2
 
-      - name: Get release tag
+      - name: ⬇️ Get release tag
         id: release
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.release_tag }}" ]; then
@@ -48,13 +48,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-      - name: Setup Java
+      - name: ☕ Setup Java
         uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Setup Kotlin
+      - name: 🐘 Setup Kotlin
         run: |
           # Install Kotlin compiler manually using SDKMAN or download directly
           curl -s "https://get.sdkman.io" | bash
@@ -62,7 +62,7 @@ jobs:
           sdk install kotlin 1.9.24
           echo "$HOME/.sdkman/candidates/kotlin/current/bin" >> $GITHUB_PATH
 
-      - name: Send Telegram notification
+      - name: 💻 Send Telegram notification
         run: |
           kotlin scripts/send-telegram.main.kts
         env:

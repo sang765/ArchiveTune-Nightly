@@ -14,26 +14,26 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: 🔎 Checkout repository
         uses: actions/checkout@v6.0.2
         with:
           token: ${{ secrets.PAT_TOKEN || github.token }}
 
-      - name: Set up Kotlin
+      - name: ♿ Set up Kotlin
         uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Run sync-readme.kts
+      - name: 💻 Run sync-readme.kts
         run: kotlin scripts/sync-readme.main.kts
 
       # Change my repository name in "temp/README.md" can make your document broken, so CREAFULLY
-      - name: Your fork, your documentation
+      - name: 👍 Your fork, your documentation
         run: |
           sed -i 's|sang765/ArchiveTune-Nightly|${{ github.repository }}|g' README.md
 
-      - name: Update GIF counters from latest release
+      - name: ⌨️ Update GIF counters from latest release
         run: |
           # Fetch latest release version using GitHub API
           RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.PAT_TOKEN || github.token }}" \
@@ -68,7 +68,7 @@ jobs:
           # Also update the URL in the link
           sed -i "s|github.com/sang765/ArchiveTune-Nightly/releases/latest|github.com/${{ github.repository }}/releases/latest|g" README.md
 
-      - name: Check for changes and commit
+      - name: 🔄 Check for changes and commit
         run: |
           if git diff --quiet README.md; then
             echo "No changes to README.md"
