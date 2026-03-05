@@ -55,47 +55,32 @@ Sync CONTRIBUTING.md content from https://github.com/koiverse/ArchiveTune raw.
 
 </div>
 
-This project is set up for development in Firebase Studio (IDX) with Nix environment configuration.
-
-<div align="center">
-
-### 💬 Requirements 💬
-
-</div>
-
 ---
 
-**Repository secrets:**  
-- `SIGNING_KEY_BASE64`: Your key convent to base64 strings. You can converter your key into base64 with this command.  
-```bash
-openssl base64 < YOUR_SIGN_KEY_NAME_HERE.jks | tr -d '\n' | tee YOUR_SIGN_KEY_NAME_HERE.jks.base64
-```
-- `KEYSTORE_PASSWORD`: Password for your keystore
-- `KEY_ALIAS`: Alias for your keystore
-- `KEY_PASSWORD`: Password for your key
-- `LASTFM_API_KEY` and `LASTFM_SECRET`: last.fm API key and Secret key for "Integrated last.fm" allow you login last.fm inside app. Checkout [API document](https://www.last.fm/api).
-- `PAT_TOKEN`: your "[Personal Access Token](https://github.com/settings/personal-access-tokens)" for follow permission
-```diff
-+ "Actions" for trigger/running workflow.
-+ "Contents" for commit, push and create release.
-+ "Workflows" for cancel workflows if build failed (optional).
-```
+**Repository secrets (required for nightly builds):**
 
-**Optional Repository Secrect:**
-- `TELEGRAM_BOT_TOKEN`: Telegram bot token for login and send message to Telegram
-- `TELEGRAM_CHAT_ID`: Your therd group behind invite URL (e.g https://t.me/ArchiveTuneGC => `ArchiveTuneGC`)
-- `TELEGRAM_THREAD_ID`: Number theard ID channel you want post (e.g https://t.me/ArchiveTuneGC/1483 => `1483`)
+| Secret | Description |
+|--------|-------------|
+| `SIGNING_KEY_BASE64` | Your Android signing key (`.jks` or `.keystore`) converted to base64. Used to sign the APK. Generate with: `openssl base64 < YOUR_KEY.jks \| tr -d '\n' \| tee YOUR_KEY.jks.base64` |
+| `KEYSTORE_PASSWORD` | Password used to protect your keystore file. Must match the password set when creating the keystore. |
+| `KEY_ALIAS` | The alias name assigned to your signing key inside the keystore. Used during APK signing process. |
+| `KEY_PASSWORD` | Password for the specific key alias within the keystore. May be different from keystore password. |
+| `LASTFM_API_KEY` | Last.fm API key for scrobbling and integrated Last.fm features. Get it from [Last.fm API](https://www.last.fm/api). |
+| `LASTFM_SECRET` | Last.fm API secret corresponding to your API key. Required for authenticated Last.fm requests. |
+| `PAT_TOKEN` | GitHub [Personal Access Token](https://github.com/settings/personal-access-token) with `Actions` (trigger/run workflows), `Contents` (commit, push, create release), and optionally `Workflows` (cancel failed builds) permissions. |
+
+**Optional secrets (for Telegram notifications):**
+
+| Secret | Description |
+|--------|-------------|
+| `TELEGRAM_BOT_TOKEN` | Telegram Bot API token. Create a bot via [@BotFather](https://t.me/BotFather) to get the token. |
+| `TELEGRAM_CHAT_ID` | Telegram chat ID for the target group or channel. For private groups, forward a message to [@userinfobot](https://t.me/userinfobot) to get the ID. |
+| `TELEGRAM_THREAD_ID` | Thread ID for Telegram topics/threads in supergroups. Only needed if posting to a specific thread in a group. |
 
 > [!NOTE]
-> - This ONLY work in Telegram Theard Channel. If dont have theard group so you don need this.
+> - Telegram secrets are only required if you want build notifications sent to Telegram. The nightly build works without them.
 
 ---
-
-**Some other things you'll need:**
-- Firebase Studio (IDX) workspace or VSCode
-- [openssl](https://github.com/openssl/openssl/blob/master/INSTALL.md#installation-steps-in-detail) for coventer your key to base64
-- keytool: You can use Java to have keytool command.
-- Android SDK (configured via Nix)
 
 <div align="center">
 
@@ -122,4 +107,3 @@ openssl base64 < YOUR_SIGN_KEY_NAME_HERE.jks | tr -d '\n' | tee YOUR_SIGN_KEY_NA
 - Latest dev build in **ArchiveTune** repository:  
   [![Latest Dev Branch Workflow Build](https://img.shields.io/github/actions/workflow/status/koiverse/ArchiveTune/build.yml?branch=dev&style=for-the-badge&logo=githubactions&logoColor=ffffff&label=Last%20DEV%20Build&labelColor=1e1e2e&color=6366f1)](https://github.com/koiverse/ArchiveTune/actions/workflows/build.yml?query=branch%3Adev)
 - [ArchiveTune Repository](https://github.com/koiverse/ArchiveTune)
-- [Firebase Studio Documentation](https://developers.google.com/idx/guides/customize-idx-env)
