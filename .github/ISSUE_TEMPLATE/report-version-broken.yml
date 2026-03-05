@@ -1,45 +1,72 @@
 ---
-name: "🐛 Report Broken Version"
-about: "Report an issue with a specific nightly version"
-title: "[Broken] Version: "
-labels: ["bug", "broken-version"]
-assignees: ""
+name: 🐛 Report Broken Version
+description: Report an issue with a specific nightly version
+labels: [bug, broken-version]
+body:
+  - type: checkboxes
+    id: pre-submission-checklist
+    attributes:
+      label: Pre-Submission Checklist
+      description: Before reporting a broken version, please ensure:
+      options:
+        - label: I have confirmed this issue exists in the latest nightly build.
+          required: true
+        - label: This issue is specifically about a broken/crashing version, not a general bug.
+          required: true
 
----
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The broken nightly version (e.g., N20260305)
+      placeholder: e.g., N20260305
+    validations:
+      required: true
 
-## Version Information
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What Happened
+      description: Describe what went wrong with this version.
+      placeholder: Describe the issue...
+    validations:
+      required: true
 
-**Version:** <!-- e.g., N20260305 -->
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we make this issue happen?
+      placeholder: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
 
-**Release Date:** <!-- e.g., March 5, 2026 -->
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+      placeholder: 
 
-## Describe the Bug
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Recordings
+      description: Add screenshots or recordings if applicable
 
-<!-- A clear and concise description of what the bug is. -->
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      description: Your operating system
+      placeholder: e.g., Android 14
 
-## Steps to Reproduce
-
-1. 
-2. 
-3. 
-
-## Expected Behavior
-
-<!-- What you expected to happen -->
-
-## Actual Behavior
-
-<!-- What actually happened -->
-
-## Screenshots/Recordings
-
-<!-- If applicable, add screenshots or recordings to help explain your problem -->
-
-## Environment
-
-- **OS:** 
-- **Version:** 
-
-## Additional Context
-
-<!-- Add any other context about the problem here -->
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Anything else we should know?
+      placeholder: 
