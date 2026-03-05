@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 @file:Repository("https://repo1.maven.org/maven2/")
-@file:DependsOn("com.google.code.gson:gson:2.10.1")
+@file:DependsOn("com.google.code.gson:gson:2.13.2")
 @file:DependsOn("org.yaml:snakeyaml:2.6")
 
 import com.google.gson.Gson
