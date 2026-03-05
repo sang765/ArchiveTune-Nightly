@@ -49,11 +49,15 @@ jobs:
           echo "Latest version: $VERSION"
           echo "Date digits: $DATE_DIGITS"
           
-          # Generate GIF counter URLs for each digit
+          # Generate GIF counter URLs for each digit (without trailing space)
           GIF_URLS=""
           for i in $(seq 0 7); do
             DIGIT=${DATE_DIGITS:$i:1}
-            GIF_URLS="$GIF_URLS[![Download](https://rule34.xxx/counter/$DIGIT.gif)](https://github.com/${{ github.repository }}/releases/latest) "
+            if [ $i -lt 7 ]; then
+              GIF_URLS="$GIF_URLS[![Download](https://rule34.xxx/counter/$DIGIT.gif)](https://github.com/${{ github.repository }}/releases/latest) "
+            else
+              GIF_URLS="$GIF_URLS[![Download](https://rule34.xxx/counter/$DIGIT.gif)](https://github.com/${{ github.repository }}/releases/latest)"
+            fi
           done
           
           echo "Generated GIF URLs: $GIF_URLS"

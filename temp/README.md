@@ -19,7 +19,7 @@
 
 <div align="center">
 
-[<!-- GIF_COUNTERS:NNNNNNNN -->](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+<!-- GIF_COUNTERS:NNNNNNNN -->
 
 | Stable | Nightly |
 |----------|---------|
