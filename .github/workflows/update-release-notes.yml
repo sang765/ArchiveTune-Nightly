@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6.0.1
         with:
-          token: ${{ secrets.PAT_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN || github.token }}
 
       # Setup Java for Kotlin changelog generation
       - name: Setup Java
@@ -67,7 +67,7 @@ jobs:
           
           gh release edit ${{ github.event.client_payload.new_version }} --notes "$BODY"
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
 
       - name: Update history
         run: |
