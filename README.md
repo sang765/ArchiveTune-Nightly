@@ -41,7 +41,11 @@ This repository contains the nightly build setup for ArchiveTune, an advanced Yo
 
 <div align="center">
 
-  <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" width="160" height="160" alt="ArchiveTune Logo" style="border-radius: 22%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="images/icon-white.png">
+    <source media="(prefers-color-scheme: light)" srcset="images/icon-black.png">
+    <img src="images/icon-black.png" width="160" height="160" alt="ArchiveTune Logo" style="border-radius: 22%">
+  </picture>
 
   <h1>ArchiveTune</h1>
 

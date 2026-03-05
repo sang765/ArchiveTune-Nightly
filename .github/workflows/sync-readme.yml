@@ -33,6 +33,11 @@ jobs:
         run: |
           sed -i 's|sang765/ArchiveTune-Nightly|${{ github.repository }}|g' README.md
 
+      # Replace static icon with dynamic logo (light/dark mode support)
+      - name: 🎨 Apply dynamic logo
+        run: |
+          sed -i 's|<img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" width="160" height="160" alt="ArchiveTune Logo" style="border-radius: 22%">|<picture>\n    <source media="(prefers-color-scheme: dark)" srcset="images/icon-white.png">\n    <source media="(prefers-color-scheme: light)" srcset="images/icon-black.png">\n    <img src="images/icon-black.png" width="160" height="160" alt="ArchiveTune Logo" style="border-radius: 22%">\n  </picture>|g' README.md
+
       - name: ⌨️ Update GIF counters from latest release
         run: |
           # Fetch latest release version using GitHub API
