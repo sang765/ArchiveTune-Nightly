@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 @file:Repository("https://repo1.maven.org/maven2/")
-@file:DependsOn("com.google.code.gson:gson:2.10.1")
+@file:DependsOn("com.google.code.gson:gson:2.13.2")
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
