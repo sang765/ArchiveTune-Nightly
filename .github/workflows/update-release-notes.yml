@@ -61,7 +61,7 @@ jobs:
           ${{ steps.changelog.outputs.changelog }}
           
           > [!NOTE]  
-          > If this version broken something, please react 👀 in this release. Thank you.
+          > If this version broken something, you can create this [issue](https://github.com/${{ github.repository }}/issues/new?template=report-version-broken.yml). Thanks you.
           EOF
           )
           
