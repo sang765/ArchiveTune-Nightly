@@ -1,4 +1,3 @@
----
 name: 🐛 Report Broken Version
 description: Report an issue with a specific nightly version
 labels: [bug, broken-version]
