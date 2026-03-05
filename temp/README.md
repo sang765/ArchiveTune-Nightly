@@ -19,6 +19,8 @@
 
 <div align="center">
 
+[<!-- GIF_COUNTERS:NNNNNNNN -->](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+
 | Stable | Nightly |
 |----------|---------|
 | <div align="center"> [![Stable build](https://img.shields.io/github/actions/workflow/status/koiverse/ArchiveTune/release.yml?labelColor=27303D&label=Stable&labelColor=06599d&color=043b69)](https://github.com/koiverse/ArchiveTune/actions/workflows/release.yml) <br> [![GitHub downloads](https://img.shields.io/github/downloads/koiverse/ArchiveTune/latest/total?label=Latest%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/koiverse/ArchiveTune/releases/latest) [![GitHub downloads](https://img.shields.io/github/downloads/koiverse/ArchiveTune/total?label=Total%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/koiverse/ArchiveTune/releases) </div> | <div align="center"> [![Nightly build](https://img.shields.io/github/actions/workflow/status/sang765/ArchiveTune-Nightly/nightly-build.yml?labelColor=27303D&label=Nightly&labelColor=2c2c47&color=1c1c39)](https://github.com/sang765/ArchiveTune-Nightly/actions/workflows/nightly-build.yml) <br> [![GitHub downloads](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/latest/total?label=Latest%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![GitHub downloads](https://img.shields.io/github/downloads/sang765/ArchiveTune-Nightly/total?label=Total%20Downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/sang765/ArchiveTune-Nightly/releases) </div> |

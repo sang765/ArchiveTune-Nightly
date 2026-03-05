@@ -33,6 +33,37 @@ jobs:
         run: |
           sed -i 's|sang765/ArchiveTune-Nightly|${{ github.repository }}|g' README.md
 
+      - name: Update GIF counters from latest release
+        run: |
+          # Fetch latest release version using GitHub API
+          RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+          
+          # Extract tag name (version)
+          VERSION=$(echo "$RELEASE_JSON" | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+          
+          # Extract date digits from version (e.g., N20260305 -> 20260305)
+          DATE_DIGITS=$(echo "$VERSION" | sed 's/^N//')
+          
+          echo "Latest version: $VERSION"
+          echo "Date digits: $DATE_DIGITS"
+          
+          # Generate GIF counter URLs for each digit
+          GIF_URLS=""
+          for i in $(seq 0 7); do
+            DIGIT=${DATE_DIGITS:$i:1}
+            GIF_URLS="$GIF_URLS[![Download](https://rule34.xxx/counter/$DIGIT.gif)](https://github.com/${{ github.repository }}/releases/latest) "
+          done
+          
+          echo "Generated GIF URLs: $GIF_URLS"
+          
+          # Replace placeholder in README.md with actual GIF counters
+          sed -i "s|<!-- GIF_COUNTERS:NNNNNNNN -->|$GIF_URLS|g" README.md
+          
+          # Also update the URL in the link
+          sed -i "s|github.com/sang765/ArchiveTune-Nightly/releases/latest|github.com/${{ github.repository }}/releases/latest|g" README.md
+
       - name: Check for changes and commit
         run: |
           if git diff --quiet README.md; then
