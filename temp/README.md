@@ -1,7 +1,7 @@
 <div align="center">
 <img width="150" height="150" src="https://raw.githubusercontent.com/sang765/ArchiveTune-Nightly/main/images/logo.webp" alt="Archivetune">
 
-# <img width="30" height="30" src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" alt="Archivetune"> ArchiveTune Nightly <img width="30" height="30" src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/icon.png" alt="Archivetune">
+# <picture> <source media="(prefers-color-scheme: dark)" srcset="images/icon-white.png"> <source media="(prefers-color-scheme: light)" srcset="images/icon-black.png"> <img src="images/icon-black.png" width="30" alt="ArchiveTune Icon"> </picture> ArchiveTune Nightly <picture> <source media="(prefers-color-scheme: dark)" srcset="images/icon-white.png"> <source media="(prefers-color-scheme: light)" srcset="images/icon-black.png"> <img src="images/icon-black.png" width="30" alt="ArchiveTune Icon"> </picture>
 **CI build for Nightly version of [ArchiveTune](https://github.com/koiverse/ArchiveTune). Redefining the YouTube Music Experience on Android.**  
 🕛 Runs at <b><code>0:00 AM</code></b> every day, **UTC 0** time zone 🕛
 
