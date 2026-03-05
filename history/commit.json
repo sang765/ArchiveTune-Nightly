@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "e1ce97fcfc64c7b0c21df00fc5d5668f6dea9f36",
-    "message": "Merge pull request #357 from koiverse/renovate/ktor-monorepo\n\nfix(deps): update ktor monorepo to v3.4.1"
+    "sha": "dc3cd6aeebecbb4bb4744e807909adcf7a46dee3",
+    "message": "fix(AlbumViewModel): update UI state based on song presence in album"
   }
 }
