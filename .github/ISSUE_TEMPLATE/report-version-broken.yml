@@ -6,7 +6,7 @@ body:
     id: pre-submission-checklist
     attributes:
       label: Pre-Submission Checklist
-      description: Before reporting a broken version, please ensure:
+      description: "Before reporting a broken version, please ensure:"
       options:
         - label: I have confirmed this issue exists in the latest nightly build.
           required: true
