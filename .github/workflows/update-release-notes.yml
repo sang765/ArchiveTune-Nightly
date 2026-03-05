@@ -85,9 +85,9 @@ jobs:
 
       - name: Commit and push
         run: |
-         git config --global user.name 'sang765'
-         git config --global user.email 'bemimnitran@gmail.com'
-         git add history/commit.json
-         git commit -m "chore: update history pointer [skip ci]" || echo "No changes to commit"
-         git pull --rebase origin main
-         git push
+          git config --global user.name '${{ github.actor }}'
+          git config --global user.email '${{ github.actor }}@users.noreply.github.com'
+          git add history/commit.json
+          git commit -m "chore: update history pointer [skip ci]" || echo "No changes to commit"
+          git pull --rebase origin main
+          git push
