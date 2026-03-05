@@ -166,7 +166,7 @@ jobs:
           done
 
       - name: Upload Signed APK
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.abi == 'universal' && 'ArchiveTune-Nightly' || format('app-{0}-nightly', matrix.abi) }}
           path: app/build/outputs/apk/${{ matrix.abi }}/release/out/*
@@ -183,7 +183,7 @@ jobs:
           ref: main
 
       - name: Download all APKs
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: downloaded_artifacts/
 
