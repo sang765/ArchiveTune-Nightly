@@ -1,8 +1,5 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
   - name: Security Vulnerability
     url: https://github.com/sang765/ArchiveTune-Nightly/security/policy
     about: Report security vulnerabilities privately
-  - name: Discussion
-    url: https://github.com/sang765/ArchiveTune-Nightly/discussions
-    about: Ask questions and discuss the project
