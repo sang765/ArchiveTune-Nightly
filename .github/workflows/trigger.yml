@@ -1,7 +1,10 @@
 name: Trigger Workflows
 
 on:
-  workflow_dispatch: # Using https://console.cron-job.org for schedule
+  workflow_dispatch: 
+  # Using https://console.cron-job.org for schedule
+  # Github action delay schedule so much, that why i setup cron job for PERFECT without delay.
+  # If you appect waiting more than 1 hour so... just use Github schedule.
 
 jobs:
   trigger:
