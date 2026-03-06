@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "dc3cd6aeebecbb4bb4744e807909adcf7a46dee3",
-    "message": "fix(AlbumViewModel): update UI state based on song presence in album"
+    "sha": "2147d6aba9048d4770abd522e047d089613dc825",
+    "message": "fix(MusicService): update volume handling to use playerVolume state"
   }
 }
