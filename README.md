@@ -19,7 +19,7 @@
 
 <div align="center">
 
-[![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/3.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/5.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+[![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/3.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
 
 | Stable | Nightly |
 |----------|---------|
@@ -362,6 +362,59 @@ Before initiating a Pull Request, every contributor must run the following quali
 
 > [!NOTE]
 > - Telegram secrets are only required if you want build notifications sent to Telegram. The nightly build works without them.
+
+---
+
+<div align="center">
+
+### ⏰ Cron-Job Schedule Setup ⏰
+
+</div>
+
+---
+
+To automatically trigger the nightly build at a specific time, set up a cron-job using [cron-job.org](https://cron-job.org) or any similar service:
+
+**Title**:
+Anything you want
+
+**URL:**
+```
+https://api.github.com/repos/Your-Name/Your-Repository/actions/workflows/trigger.yml/dispatches
+```
+
+**Headers:**
+| Header | Value |
+|--------|-------|
+| `Accept` | `application/vnd.github.v3+json` |
+| `Authorization` | `Bearer YOUR_GITHUB_PAT_TOKEN` |
+| `Content-Type` | `application/json` |
+
+**Request menthod:**
+POST
+
+**Body:**
+```json
+{
+  "ref":"main"
+}
+```
+
+**Timeout:**
+You can set 1 second if you can't wait.
+
+**Cron Schedule Examples:**
+
+| Schedule | Cron Expression | Description |
+|----------|-----------------|-------------|
+| Daily at midnight (UTC) | `0 0 * * *` | Runs every day at 00:00 UTC |
+| Daily at midnight (UTC+0) | `@daily` | Same as above, simplified |
+| Every 6 hours | `0 */6 * * *` | At minute 0 of every 6th hour |
+| Weekly on Sunday | `0 0 * * 0` | Every Sunday at midnight |
+
+> [!TIP]
+> - The workflow uses `repository_dispatch` trigger, so the external cron service needs a PAT token with `repo` scope to send the dispatch event.
+> - Alternatively, you can use GitHub's built-in scheduler by adding a `schedule` trigger to the workflow, but the external cron-job.org method gives you more control.
 
 ---
 
