@@ -54,16 +54,15 @@ jobs:
           echo "Latest version: $VERSION"
           echo "Date digits: $DATE_DIGITS"
           
-          # Generate GIF counter URLs for each digit (without trailing space)
-          GIF_URLS=""
+          # Generate GIF counter URLs for each digit (single link wrapping all images)
+          GIF_IMAGES=""
           for i in $(seq 0 7); do
             DIGIT=${DATE_DIGITS:$i:1}
-            if [ $i -lt 7 ]; then
-              GIF_URLS="$GIF_URLS[![Download](https://rule34.xxx/counter/$DIGIT.gif)](https://github.com/${{ github.repository }}/releases/latest) "
-            else
-              GIF_URLS="$GIF_URLS[![Download](https://rule34.xxx/counter/$DIGIT.gif)](https://github.com/${{ github.repository }}/releases/latest)"
-            fi
+            GIF_IMAGES="$GIF_IMAGES[![Download](https://rule34.xxx/counter/$DIGIT.gif)"
           done
+          
+          # Wrap all images in a single link
+          GIF_URLS="$GIF_IMAGES](https://github.com/${{ github.repository }}/releases/latest)"
           
           echo "Generated GIF URLs: $GIF_URLS"
           
@@ -75,13 +74,40 @@ jobs:
 
       - name: 🔄 Check for changes and commit
         run: |
+          # Check if there are changes to commit
           if git diff --quiet README.md; then
-            echo "No changes to README.md"
-          else
-            git config --global user.name '${{ github.actor }}'
-            git config --global user.email '${{ github.actor }}@users.noreply.github.com'
-            git add README.md
-            git commit -m "ci(docs): Sync README.md content from https://github.com/koiverse/ArchiveTune"
-            git pull --rebase origin main
-            git push
+            echo "No changes to README.md - skipping commit"
+            exit 0
           fi
+
+          # Ensure git user is configured (required for commits)
+          git config --global user.name '${{ github.actor }}' || true
+          git config --global user.email '${{ github.actor }}@users.noreply.github.com' || true
+
+          # Stage the README.md file
+          git add README.md
+
+          # Commit with descriptive message (include timestamp for uniqueness)
+          TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          git commit -m "ci(docs): Sync README.md from workflow run ${TIMESTAMP}" || {
+            echo "Warning: Nothing to commit - file may already be staged";
+            exit 0;
+          }
+
+          # Pull with rebase and handle potential conflicts
+          # Use || true to continue on conflict (allows manual resolution)
+          if ! git pull --rebase origin main 2>&1; then
+            echo "Warning: Pull rebase encountered conflicts. Aborting rebase and skipping push."
+            git rebase --abort || true
+            echo "::warning::README.md sync skipped due to merge conflicts. Please resolve manually."
+            exit 0
+          fi
+
+          # Push changes to remote
+          if ! git push; then
+            echo "Error: Failed to push changes to remote"
+            echo "::warning::README.md sync failed during push. Please push manually."
+            exit 1
+          fi
+
+          echo "✅ README.md successfully synced and pushed to main branch"
