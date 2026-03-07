@@ -97,8 +97,9 @@ Anything you want
 
 **URL:**
 ```
-https://api.github.com/repos/Your-Name/Your-Repository/actions/workflows/trigger.yml/dispatches
+https://api.github.com/repos/${{ github.repository }}y/actions/workflows/trigger.yml/dispatches
 ```
+`${{ github.repository }}` is `your-username/your-repo-name` so change it to your name and repository name.
 
 **Headers:**
 | Header | Value |
