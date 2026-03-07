@@ -19,7 +19,7 @@
 
 <div align="center">
 
-[![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/3.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+[![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/3.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/7.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
 
 | Stable | Nightly |
 |----------|---------|
@@ -112,23 +112,44 @@ This repository contains the nightly build setup for ArchiveTune, an advanced Yo
 ## 📸 Showcase
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/koiverse/ArchiveTune/refs/heads/dev/fastlane/metadata/android/en-US/images/ArchiveTuneBanner.png" alt="ArchiveTune Banner" style="width: 100%; max-width: 400px; border-radius: 12px;">
+  <img src="https://raw.githubusercontent.com/koiverse/ArchiveTune/refs/heads/dev/fastlane/metadata/android/en-US/images/ArchiveTuneBanner.png" alt="ArchiveTune Banner" style="width: 100%; max-width: 400px; border-radius: 12px;" />
+
   <table border="0">
     <tr>
-      <td><img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_1.jpg" width="180" style="border-radius: 12px;"></td>
-      <td><img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_2.jpg" width="180" style="border-radius: 12px;"></td>
-      <td><img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_3.jpg" width="180" style="border-radius: 12px;"></td>
-      <td><img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_4.jpg" width="180" style="border-radius: 12px;"></td>
-      <td><img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_5.jpg" width="180" style="border-radius: 12px;"></td>
-      <td><img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_6.jpg" width="180" style="border-radius: 12px;"></td>
+      <td align="center">
+        <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_1.jpg" width="180" style="border-radius: 12px;"><br>
+        <sub>Browse</sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_2.jpg" width="180" style="border-radius: 12px;"><br>
+        <sub>Live Lyrics</sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_3.jpg" width="180" style="border-radius: 12px;"><br>
+        <sub>Theme Customization</sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_4.jpg" width="180" style="border-radius: 12px;"><br>
+        <sub>Live Statistics</sub>
+      </td>
     </tr>
-    <tr align="center">
-      <td><sub>Player</sub></td>
-      <td><sub>Live Lyrics</sub></td>
-      <td><sub>Theme Customization</sub></td>
-      <td><sub>Live Statistics</sub></td>
-      <td><sub>Artist</sub></td>
-      <td><sub>Album</sub></td>
+    <tr>
+      <td align="center">
+        <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_5.jpg" width="180" style="border-radius: 12px;"><br>
+        <sub>Artist</sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_6.jpg" width="180" style="border-radius: 12px;"><br>
+        <sub>Album</sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_7.jpg" width="180" style="border-radius: 12px;"><br>
+        <sub>Player</sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/koiverse/ArchiveTune/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_8.jpg" width="180" style="border-radius: 12px;"><br>
+        <sub>Settings</sub>
+      </td>
     </tr>
   </table>
 </div>
