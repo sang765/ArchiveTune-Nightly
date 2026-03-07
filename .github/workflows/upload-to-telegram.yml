@@ -1,3 +1,4 @@
+# Disable or delete this workflows if you don't need it post notification to Telegram.
 name: Upload to Telegram
 
 on:
