@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "c63f80c253d50fefd51db52394902a10ba7925a5",
-    "message": "fix(AlbumViewModel): correct logic for empty album state and update database transaction method"
+    "sha": "0871231a0a9f9d214eb34ff1987d6177fc4894c8",
+    "message": "feat(AccountSettings): enhance UI with staggered entrance animations and refactor components for improved structure"
   }
 }
