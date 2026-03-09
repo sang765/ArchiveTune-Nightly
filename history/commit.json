@@ -1,8 +1,8 @@
 {
   "commit": {
-    "repository": "koiverse/ArchiveTune",
-    "branch": "dev",
-    "sha": "24616c45498b6236e5b7770f2fd35808e9822901",
-    "message": "feat(SettingsScreen): refactor layout to use Scaffold for improved structure"
+    "repository": "sang765/ArchiveTune-Nightly",
+    "branch": "main",
+    "sha": "5831b47274091735acbd681fc8829012d35c94bc",
+    "message": "ci(docs): Sync README.md from workflow run 2026-03-09T00:10:36Z"
   }
 }
