@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "24616c45498b6236e5b7770f2fd35808e9822901",
-    "message": "feat(SettingsScreen): refactor layout to use Scaffold for improved structure"
+    "sha": "0871231a0a9f9d214eb34ff1987d6177fc4894c8",
+    "message": "feat(AccountSettings): enhance UI with staggered entrance animations and refactor components for improved structure"
   }
 }
