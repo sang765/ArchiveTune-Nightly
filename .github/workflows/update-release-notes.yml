@@ -4,6 +4,11 @@ on:
   repository_dispatch:
     types: [update-release-notes]
   workflow_dispatch:
+    inputs:
+      new_version:
+        description: 'Release version to update'
+        required: true
+        default: 'nightly-latest'
 
 jobs:
   update:
@@ -65,7 +70,7 @@ jobs:
           EOF
           )
           
-          gh release edit ${{ github.event.client_payload.new_version }} --notes "$BODY"
+          gh release edit ${{ github.event.client_payload.new_version || github.event.inputs.new_version || 'nightly-latest' }} --notes "$BODY"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
 
