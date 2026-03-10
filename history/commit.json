@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "24616c45498b6236e5b7770f2fd35808e9822901",
-    "message": "feat(SettingsScreen): refactor layout to use Scaffold for improved structure"
+    "sha": "f273f32ff69ca96577a807dadec2f367b15c8f5f",
+    "message": "fix(deps): update NewPipeExtractor version to v0.26.0"
   }
 }
