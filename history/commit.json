@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "f273f32ff69ca96577a807dadec2f367b15c8f5f",
-    "message": "fix(deps): update NewPipeExtractor version to v0.26.0"
+    "sha": "5f7ae27e52ec31cc7c41568bb3104dc245810e9e",
+    "message": "feat(GlassEffectDefaults): enhance surface and overlay properties for improved UI aesthetics"
   }
 }
