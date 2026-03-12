@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "5f7ae27e52ec31cc7c41568bb3104dc245810e9e",
-    "message": "feat(GlassEffectDefaults): enhance surface and overlay properties for improved UI aesthetics"
+    "sha": "c4ff6f8d85289b57aad80049c5e606287e5c9c11",
+    "message": "refactor(GlassComponents): remove unused border and highlight properties from GlassSurfaceStyle"
   }
 }
