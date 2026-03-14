@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "a3d5648772daab13cf7f474911caf2c512dfff47",
-    "message": "feat(MainActivity): use HorizontalFloatingToolbar container"
+    "sha": "38d27aadc140e5b751b7dce030efc61d15c3d366",
+    "message": "refactor(ArtistItemsScreen, OnlinePlaylistScreen): simplify item list handling and divider logic"
   }
 }
