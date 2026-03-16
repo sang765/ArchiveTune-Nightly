@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "91d9f3ddc3dfa312396c57bfc032619061e97cd0",
-    "message": "feat(PlayerSettings): add wakelock preference to keep CPU awake during playback"
+    "sha": "81f68c8178bfe48eaae4d5223a5797c897462d75",
+    "message": "refactor(LocalPlaylistScreen): reposition SnackbarHost"
   }
 }
