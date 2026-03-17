@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "81f68c8178bfe48eaae4d5223a5797c897462d75",
-    "message": "refactor(LocalPlaylistScreen): reposition SnackbarHost"
+    "sha": "81a396ce8aeef705982d9ee8efe2d9b532e1f3e2",
+    "message": "feat(PlayerMenu): redesign PlayerVolumeCard"
   }
 }
