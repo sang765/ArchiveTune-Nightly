@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "81a396ce8aeef705982d9ee8efe2d9b532e1f3e2",
-    "message": "feat(PlayerMenu): redesign PlayerVolumeCard"
+    "sha": "60d25ac1dad90975e66b0be45decd1dd5df89cfc",
+    "message": "feat(Thumbnail): Initialize thumbnailLazyGridState scroll for currentMediaItemIndex changes"
   }
 }
