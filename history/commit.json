@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "f09d2dd708a230ff29e8ea1cbce5639c04ddcd23",
-    "message": "refactor(HomeScreenComponents): Refactor SpeedDialSection grid ordering and pagination using SpeedDialTile"
+    "sha": "15c88ea6f3a8737d5c1bbad8ef650b42e710a814",
+    "message": "refactor(PlayerMenu): remove LocalConfiguration and isPortrait check #391"
   }
 }
