@@ -182,12 +182,12 @@ jobs:
           repository: ${{ github.repository }}
           ref: main
 
-      - name: 📥 Download all APKs
+      - name: 📥 Download APK in Artifacts
         uses: actions/download-artifact@v8
         with:
           path: downloaded_artifacts/
 
-      - name: 📦 Create nightly release
+      - name: 📦 Create release
         uses: softprops/action-gh-release@v2.6.1
         with:
           tag_name: ${{ needs.build.outputs.new_version }}
