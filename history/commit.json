@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "15c88ea6f3a8737d5c1bbad8ef650b42e710a814",
-    "message": "refactor(PlayerMenu): remove LocalConfiguration and isPortrait check #391"
+    "sha": "53180e17623e1e7f59fdef0395e52fe15700732d",
+    "message": "chore(AndroidManifest): Remove BIND_MEDIA_BROWSER_SERVICE permission from MusicService #390"
   }
 }
