@@ -48,10 +48,10 @@ fun main() {
         
         // Step 2: Define sync map
         val syncMap = mapOf(
-            "Sync README.md content from https://github.com/koiverse/ArchiveTune raw." to 
+            "<!-- README.md -->" to 
                 "https://raw.githubusercontent.com/koiverse/ArchiveTune/main/README.md",
             
-            "Sync CONTRIBUTING.md content from https://github.com/koiverse/ArchiveTune raw." to 
+            "<!-- CONTRIBUTING.md -->" to 
                 "https://raw.githubusercontent.com/koiverse/ArchiveTune/dev/CONTRIBUTING.md"
         )
         
