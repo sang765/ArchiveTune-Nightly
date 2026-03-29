@@ -106,7 +106,7 @@ https://api.github.com/repos/${{ github.repository }}/actions/workflows/trigger.
 | Header | Value |
 |--------|-------|
 | `Accept` | `application/vnd.github.v3+json` |
-| `Authorization` | `Bearer YOUR_GITHUB_PAT_TOKEN` |
+| `Authorization` | `Bearer YOUR_GITHUB_PAT` |
 | `Content-Type` | `application/json` |
 
 **Request menthod:**
