@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "c85ce0085fddb150fa8765da01b6a5b4887b1298",
-    "message": "fix(MiniPlayer): Simplify content description logic for play/pause state"
+    "sha": "d0550c56a974fff573478bd83ed661e6ddf55281",
+    "message": "feat(YouTube): add login context checks and setLogin parameter to player #418"
   }
 }
