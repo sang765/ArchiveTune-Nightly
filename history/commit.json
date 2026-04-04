@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "be1352abc2ea4c04049f71f44b989aa08af527b2",
-    "message": "fix(PlayerResponse): make expiresInSeconds nullable with default value #433"
+    "sha": "81c25bc5bdc6e0bf86e91c65e67855c37d58a4d7",
+    "message": "Merge branch 'main' into dev"
   }
 }
