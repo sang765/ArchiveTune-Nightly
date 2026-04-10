@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "57cb61b52ab7b6ba3d04a2279f20192b578727d4",
-    "message": "feat(MediaLibrarySessionCallback): implement debounced search count notification and safe pagination #453"
+    "sha": "7f718ad01b2f919eaf48246e516fd83923c59562",
+    "message": "cleanup code share lyrics dialog"
   }
 }
