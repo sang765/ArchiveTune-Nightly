@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "7f718ad01b2f919eaf48246e516fd83923c59562",
-    "message": "cleanup code share lyrics dialog"
+    "sha": "bd9819a16a185b0baa9002b68bd4b450862618c9",
+    "message": "fix(LibraryMixScreen): increase library shortcut card height and adjust layout"
   }
 }
