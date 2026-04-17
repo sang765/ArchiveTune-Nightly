@@ -68,6 +68,7 @@ This repository contains the nightly build setup for ArchiveTune, an advanced Yo
 | `LASTFM_API_KEY` | Last.fm API key for scrobbling and integrated Last.fm features. Get it from [Last.fm API](https://www.last.fm/api). |
 | `LASTFM_SECRET` | Last.fm API secret corresponding to your API key. Required for authenticated Last.fm requests. |
 | `TOGETHER_BEARER_TOKEN` | Uhm... I don't know how to explain it, but this secret is for using the online feature of Music Together. You can see the details in this message: https://t.me/ArchiveTuneGC/1/7766 |
+| `CANVAS_BEARER_TOKEN` | Another unkown env but maybe for canvas, Maybe new backend? |
 | `PAT_TOKEN` | GitHub [Personal Access Token](https://github.com/settings/personal-access-token) with `Actions` (trigger/run workflows), `Contents` (commit, push, create release), and optionally `Workflows` (cancel failed builds) permissions. |
 
 **Optional secrets (for Telegram notifications):**
