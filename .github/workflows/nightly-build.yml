@@ -10,6 +10,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build-shared:
+    name: 🔨 Build KMP Shared Module
+    if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set Up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-cleanup: on-success
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Compile KMP shared module
+        run: ./gradlew :shared:compileCommonMainKotlinMetadata :shared:compileKotlinIosArm64 :shared:compileKotlinIosSimulatorArm64
+
   build:
     runs-on: ubuntu-latest
     outputs:
@@ -18,9 +42,28 @@ jobs:
       changelog: ${{ steps.changelog.outputs.changelog }}
       date: ${{ steps.date.outputs.date }}
       time: ${{ steps.time.outputs.time }}
+    needs: [build-shared]
     strategy:
       matrix:
-        abi: [ 'arm64', 'armeabi', 'x86', 'x86_64', 'universal' ]
+        include:
+          - device: mobile
+            deviceName: Mobile
+            abi: arm64
+          - device: mobile
+            deviceName: Mobile
+            abi: armeabi
+          - device: mobile
+            deviceName: Mobile
+            abi: x86
+          - device: mobile
+            deviceName: Mobile
+            abi: x86_64
+          - device: mobile
+            deviceName: Mobile
+            abi: universal
+          - device: tv
+            deviceName: Tv
+            abi: universal
 
     steps:
       - uses: actions/checkout@v6
@@ -59,6 +102,23 @@ jobs:
 
       - name: 💉 Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: ❓️ Resolve variant names
+        id: variant
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEVICE="${{ matrix.device }}"
+          ABI="${{ matrix.abi }}"
+          DEVICE_CAP="${{ matrix.deviceName }}"
+          ABI_CAP="$(tr '[:lower:]' '[:upper:]' <<< "${ABI:0:1}")${ABI:1}"
+          echo "device=$DEVICE" >> "$GITHUB_OUTPUT"
+          echo "abi=$ABI" >> "$GITHUB_OUTPUT"
+          echo "device_cap=$DEVICE_CAP" >> "$GITHUB_OUTPUT"
+          echo "abi_cap=$ABI_CAP" >> "$GITHUB_OUTPUT"
+          echo "gradle_task=assemble${DEVICE_CAP}${ABI_CAP}Release" >> "$GITHUB_OUTPUT"
+          echo "artifact_name=app-${DEVICE}-${ABI}-nightly" >> "$GITHUB_OUTPUT"
+          echo "apk_name=app-${DEVICE}-${ABI}-nightly.apk" >> "$GITHUB_OUTPUT"
 
       - name: ⌨️ Update version name and code for nightly build
         run: |
@@ -112,7 +172,7 @@ jobs:
             echo "================================="
             echo "🔄 Attempt $attempt of $max_attempts"
             echo "================================="
-            if ./gradlew assemble${{ matrix.abi }}Release; then
+            if ./gradlew ${{ steps.variant.outputs.gradle_task }}; then
               echo "==============="
               echo "✅ Build succeeded"
               echo "==============="
@@ -140,37 +200,74 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
           TOGETHER_BEARER_TOKEN: ${{ secrets.TOGETHER_BEARER_TOKEN }}
+          CANVAS_BEARER_TOKEN: ${{ secrets.CANVAS_BEARER_TOKEN }}
+
+      - name: ❓️ Resolve release output directory
+        id: release_dir
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEVICE="${{ steps.variant.outputs.device }}"
+          ABI="${{ steps.variant.outputs.abi }}"
+          DEVICE_CAP="${{ steps.variant.outputs.device_cap }}"
+          ABI_CAP="${{ steps.variant.outputs.abi_cap }}"
+          CANDIDATES=(
+            "app/build/outputs/apk/${DEVICE}/${ABI}/release"
+            "app/build/outputs/apk/${DEVICE}${ABI_CAP}/release"
+            "app/build/outputs/apk/${DEVICE_CAP}${ABI_CAP}/release"
+            "app/build/outputs/apk/${ABI}/${DEVICE}/release"
+          )
+          for d in "${CANDIDATES[@]}"; do
+            if [ -d "$d" ]; then
+              echo "release_dir=$d" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          FOUND_METADATA="$(
+            find app/build/outputs/apk -type f -name "output-metadata.json" \
+              \( \
+                -path "*/${DEVICE}/${ABI}/release/output-metadata.json" -o \
+                -path "*/${DEVICE}${ABI_CAP}/release/output-metadata.json" -o \
+                -path "*/${DEVICE_CAP}${ABI_CAP}/release/output-metadata.json" -o \
+                -path "*/${ABI}/${DEVICE}/release/output-metadata.json" \
+              \) \
+              | head -n 1 || true
+          )"
+          if [ -n "${FOUND_METADATA:-}" ]; then
+            echo "release_dir=$(dirname "$FOUND_METADATA")" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Could not resolve APK release output directory for DEVICE=$DEVICE ABI=$ABI"
+          find app/build/outputs/apk -maxdepth 8 -type d -print || true
+          exit 1
 
       - name: 🔏 Sign APK
         id: sign_app
-        uses: ilharp/sign-android-release@v2
+        uses: ilharp/sign-android-release@v2.0.0
         with:
-          releaseDir: app/build/outputs/apk/${{ matrix.abi }}/release
+          releaseDir: ${{ steps.release_dir.outputs.release_dir }}/
           signingKey: ${{ secrets.SIGNING_KEY_BASE64 }}
           keyAlias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
+          buildToolsVersion: 35.0.0
 
       - name: 📲 Move signed APK
+        shell: bash
         run: |
-          mkdir -p app/build/outputs/apk/${{ matrix.abi }}/release/out
-          # Get signed files from action output
-          IFS=':' read -ra SIGNED_FILES <<< "${{ steps.sign_app.outputs.signedFiles }}"
-          for signed_file in "${SIGNED_FILES[@]}"; do
-            if [ -f "$signed_file" ]; then
-              if [ "${{ matrix.abi }}" = "universal" ]; then
-                cp "$signed_file" app/build/outputs/apk/${{ matrix.abi }}/release/out/ArchiveTune-Nightly.apk
-              else
-                cp "$signed_file" app/build/outputs/apk/${{ matrix.abi }}/release/out/app-${{ matrix.abi }}-nightly.apk
-              fi
-            fi
-          done
+          set -euo pipefail
+          RELEASE_DIR="${{ steps.release_dir.outputs.release_dir }}"
+          mkdir -p "$RELEASE_DIR/out"
+          SIGNED_APK=$(find "$RELEASE_DIR" -type f \( -name "*-signed.apk" -o -name "*-unsigned-signed.apk" \) | head -n 1)
+          mv "$SIGNED_APK" "$RELEASE_DIR/out/${{ steps.variant.outputs.apk_name }}"
 
       - name: 📤 Upload Signed APK
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.abi == 'universal' && 'ArchiveTune-Nightly' || format('app-{0}-nightly', matrix.abi) }}
-          path: app/build/outputs/apk/${{ matrix.abi }}/release/out/*
+          name: ${{ steps.variant.outputs.artifact_name }}
+          path: ${{ steps.release_dir.outputs.release_dir }}/out/${{ steps.variant.outputs.apk_name }}
 
   create-release:
     needs: [build]
