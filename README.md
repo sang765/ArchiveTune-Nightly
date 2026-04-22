@@ -19,7 +19,7 @@
 
 <div align="center">
 
-[![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/4.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/1.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+[![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/4.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
 
 | Stable | Nightly |
 |----------|---------|
@@ -52,12 +52,13 @@ This repository contains the nightly build setup for ArchiveTune, an advanced Yo
   <p align="center">
     <strong>Redefining the YouTube Music Experience on Android.</strong>
     <br />
-    <em>It’s high-performance, totally private, and packed with features for people who really care about their experience.</em>
+    <em>It’s high-performance, privacy-focused, and packed with features for people who really care about their experience.</em>
   </p>
 
   <p align="center">
     <a href="https://archivetune.koiiverse.cloud"><b>Official Website</b></a> •
     <a href="#features"><b>Features</b></a> •
+    <a href="PRIVACY.md"><b>Privacy</b></a> •
     <a href="#download-now"><b>Download</b></a> •
     <a href="#screenshots"><b>Screenshots</b></a> •
     <a href="https://github.com/koiverse/ArchiveTune/issues/new/choose"><b>Support</b></a>
@@ -122,6 +123,7 @@ This repository contains the nightly build setup for ArchiveTune, an advanced Yo
         <ul>
           <li>Ad-free playback with background listening</li>
           <li>Your playlists, liked songs, and subscriptions appear after sign-in</li>
+          <li>Support local file and local song playback
           <li>Fast startup and lightweight performance</li>
           <li>Built for a private, uninterrupted listening experience</li>
         </ul>
@@ -281,6 +283,8 @@ Join Our Telegram Channels for Support and Discussion.
 ## 🌍 Globalization
 
 ArchiveTune belongs to everyone. Help us localize the experience for your region.
+
+[![Static Badge](https://img.shields.io/badge/translate-help?style=for-the-badge&logo=weblate&labelColor=grey)](https://translate.codeberg.org/engage/archivetune/)
 
 <div align="center">
   <a href="https://translate.codeberg.org/engage/archivetune/">
