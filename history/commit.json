@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "59df744ebc2c4f951ef38d6ca7f7652ce8f70d8a",
-    "message": "Merge pull request #487 from koiverse/renovate/agp\n\nfix(deps): update agp to v9.2.0"
+    "sha": "904ce4a4f091d5881adbaa604f16410238e99e51",
+    "message": "Merge pull request #496 from koiverse/renovate/compose\n\nfix(deps): update compose to v1.12.0-alpha01"
   }
 }
