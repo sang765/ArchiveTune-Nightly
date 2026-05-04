@@ -100,20 +100,11 @@ jobs:
             exit 0;
           }
 
-          # Pull with rebase and handle potential conflicts
-          # Use || true to continue on conflict (allows manual resolution)
-          if ! git pull --rebase origin main 2>&1; then
-            echo "Warning: Pull rebase encountered conflicts. Aborting rebase and skipping push."
-            git rebase --abort || true
-            echo "::warning::README.md sync skipped due to merge conflicts. Please resolve manually."
-            exit 0
-          fi
+          # Pull with rebase to incorporate remote changes
+          git fetch origin main
+          git rebase origin/main
 
-          # Push changes to remote
-          if ! git push; then
-            echo "Error: Failed to push changes to remote"
-            echo "::warning::README.md sync failed during push. Please push manually."
-            exit 1
-          fi
+          # Push changes to remote with rebase strategy
+          git push origin main --force-with-lease
 
           echo "✅ README.md successfully synced and pushed to main branch"
