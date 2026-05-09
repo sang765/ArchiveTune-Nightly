@@ -19,7 +19,7 @@
 
 <div align="center">
 
-[![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/5.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/8.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
+[![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/2.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/6.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/5.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/0.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest) [![Download](https://rule34.xxx/counter/9.gif)](https://github.com/sang765/ArchiveTune-Nightly/releases/latest)
 
 | Stable | Nightly |
 |----------|---------|
@@ -83,6 +83,7 @@ This repository contains the nightly build setup for ArchiveTune, an advanced Yo
     <img src="https://img.shields.io/badge/Toolkit-Jetpack_Compose-4285f4?style=for-the-badge&logo=jetpack-compose&color=6366f1&labelColor=1e1e2e" alt="Jetpack Compose Toolkit" />
     <img src="https://img.shields.io/badge/Design-Material_3-000000?style=for-the-badge&logo=material-design&color=6366f1&labelColor=1e1e2e" alt="Material Design 3" />
     <a href="https://t.me/ArchiveTuneGC"><img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram" /></a>
+    <a href="https://discord.gg/XF2fpb9rTq"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord" /></a>
   </div>
   
   <br />
@@ -270,7 +271,7 @@ This repository contains the nightly build setup for ArchiveTune, an advanced Yo
   <tbody>
     <tr>
       <td align="center">
-        <a href="https://nightly.link/koiverse/ArchiveTune/workflows/build/dev/app-universal-release">
+        <a href="https://nightly.link/koiverse/ArchiveTune/workflows/build/dev/app-mobile-universal-release">
           <img src="https://raw.githubusercontent.com/koiverse/ArchiveTune/refs/heads/main/assets/badge_github.png" height="50" alt="Download the latest ArchiveTune nightly build">
         </a>
       </td>
@@ -283,9 +284,10 @@ This repository contains the nightly build setup for ArchiveTune, an advanced Yo
 > **Notes:** The trusted download source is listed above; we are not responsible for any risks you may encounter from downloading from other sources.
 
 ## ❓ Need Help or Have Questions?
-Join Our Telegram Channels for Support and Discussion.
+Join Our Telegram Channels or Discord Servers for Support and Discussion.
 
 [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ArchiveTuneGC)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/XF2fpb9rTq)
 
 ---
 
