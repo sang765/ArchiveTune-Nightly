@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "17d1bbbeddc4a531a7aa54a22715768609f41eaa",
-    "message": "feat(YearInMusicScreen): conditionally show share FAB based on available stats"
+    "sha": "e49288dcc886e0e379ab19008345d834d62cdaa8",
+    "message": "feat(BackupRestoreViewModel): add backup category selection for library, account, and settings"
   }
 }
