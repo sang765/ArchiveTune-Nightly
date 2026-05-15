@@ -1,0 +1,72 @@
+name: Discord Notification
+
+on:
+  workflow_run:
+    workflows:
+      - Update Release Note
+    types:
+      - completed
+
+jobs:
+  notify:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get workflow run created at
+        id: get_created_at
+        run: |
+          echo "WORKFLOW_RUN_CREATED_AT=${{ github.event.workflow_run.created_at }}" >> $GITHUB_OUTPUT
+
+      - name: Check WEBHOOK_URL is set
+        run: |
+          if [ -z "${{ secrets.WEBHOOK_URL }}" ]; then
+            echo "Error: WEBHOOK_URL secret is not set or is empty."
+            exit 1
+          fi
+
+      - name: Get latest release after workflow run start
+        id: get_release
+        run: |
+          # Get the workflow run's created at from the previous step
+          WORKFLOW_RUN_CREATED_AT="${{ steps.get_created_at.outputs.WORKFLOW_RUN_CREATED_AT }}"
+
+          # Fetch all releases (we'll get the first page, up to 30 releases)
+          RELEASES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/releases)
+
+          # Filter releases published after the workflow run started
+          FILTERED_RELEASES=$(echo "$RELEASES" | jq --arg since "$WORKFLOW_RUN_CREATED_AT" \
+            '[.[] | select(.published_at > $since)]')
+
+          # Check if we have any releases
+          RELEASE_COUNT=$(echo "$FILTERED_RELEASES" | jq 'length')
+          if [ "$RELEASE_COUNT" -eq 0 ]; then
+            echo "No releases found after workflow run start."
+            exit 1
+          fi
+
+          # Get the most recent release (first in the filtered list)
+          LATEST_RELEASE=$(echo "$FILTERED_RELEASES" | jq '.[0]')
+
+          # Extract the name and tag
+          VERSION_TITLE=$(echo "$LATEST_RELEASE" | jq -r '.name')
+          RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+
+          # Set outputs
+          echo "version_title=$VERSION_TITLE" >> $GITHUB_OUTPUT
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Send Discord notification
+        run: |
+          VERSION_TITLE="${{ steps.get_release.outputs.version_title }}"
+          RELEASE_TAG="${{ steps.get_release.outputs.release_tag }}"
+
+          # Construct the message
+          MESSAGE="# New daily version of __ArchiveTune Nightly__ has been released.
+
+          > - Ohaiyo, **ArchiveTune $VERSION_TITLE** has been released. You can view changlog and download inside **ArchiveTune Nightly** app or with this link below.
+          > - **Link:** https://github.com/${{ github.repository }}/releases/$RELEASE_TAG"
+
+          # Create JSON payload using jq to avoid escaping issues
+          PAYLOAD=$(jq -n --arg msg "$MESSAGE" '{content: $msg}')
+          curl -H "Content-Type: application/json" -d "$PAYLOAD" "${{ secrets.WEBHOOK_URL }}"
