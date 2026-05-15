@@ -2,7 +2,7 @@
 <img width="150" height="150" src="https://raw.githubusercontent.com/sang765/ArchiveTune-Nightly/main/images/logo.webp" alt="Archivetune">
 
 # <picture> <source media="(prefers-color-scheme: dark)" srcset="images/icon-white.png"> <source media="(prefers-color-scheme: light)" srcset="images/icon-black.png"> <img src="images/icon-black.png" width="30" alt="ArchiveTune Icon"> </picture> ArchiveTune Nightly <picture> <source media="(prefers-color-scheme: dark)" srcset="images/icon-white.png"> <source media="(prefers-color-scheme: light)" srcset="images/icon-black.png"> <img src="images/icon-black.png" width="30" alt="ArchiveTune Icon"> </picture>
-**CI build for Nightly version of [ArchiveTune](https://github.com/koiverse/ArchiveTune). Redefining the YouTube Music Experience on Android.**  
+**Official CI build for daily Nightly version of [ArchiveTune](https://github.com/koiverse/ArchiveTune). Redefining the YouTube Music Experience on Android.**  
 🕛 Runs at <b><code>0:00 AM</code></b> every day, **UTC 0** time zone 🕛
 
 <sub>Don't forget to leave a ⭐ for this repository if you visit. Thank you so much ♥️</sub>
@@ -28,7 +28,6 @@
 </div>
 
 > [!WARNING]
-> - This is **unofficial** Nightly build of AchieveTune. If you wanna download official ArchiveTune, please check out this [repository](https://github.com/koiverse/ArchiveTune).
 > - We **DO NOT ACCEPT** any issues, bug reports, or new ideas on "this repository". If you wanna create an issue or bug report, please create it [here](https://github.com/koiverse/ArchiveTune/issues/new/choose).
 
 This repository contains the nightly build setup for ArchiveTune, an advanced YouTube Music client for Android. Read bellow to read more about this app.
