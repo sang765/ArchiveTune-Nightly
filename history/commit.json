@@ -2,7 +2,7 @@
   "commit": {
     "repository": "koiverse/ArchiveTune",
     "branch": "dev",
-    "sha": "49f336d76b54bc6ba76a59c9e93264aadb0a7cef",
-    "message": "Merge pull request #597 from koiverse/renovate/ktor-monorepo\n\nfix(deps): update ktor monorepo to v3.5.0"
+    "sha": "f4286d3df52c154ba642ae3e002478e5ec839f82",
+    "message": "fix(AccountSettings): enable clearing web auth session when forgetting account"
   }
 }
