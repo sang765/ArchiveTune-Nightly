@@ -175,7 +175,7 @@ jobs:
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
           TOGETHER_BEARER_TOKEN: ${{ secrets.TOGETHER_BEARER_TOKEN }}
           CANVAS_BEARER_TOKEN: ${{ secrets.CANVAS_BEARER_TOKEN }}
-          APP_UPDATE_PAT: ${{ secret.APP_UPDATE_PAT }}
+          APP_UPDATE_PAT: ${{ secrets.APP_UPDATE_PAT }}
 
       - name: ❓️ Resolve release output directory
         id: release_dir
