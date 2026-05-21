@@ -37,6 +37,9 @@ jobs:
 
       - name: 🐘 Generate changelog
         run: kotlin scripts/generate-changelog.main.kts
+        env:
+          REPO_PATH: "koiverse/ArchiveTune"
+          BRANCH: "dev"
 
       - name: 🗓️ Get Date
         id: date
@@ -52,7 +55,7 @@ jobs:
             echo "EOF"
           } >> $GITHUB_OUTPUT
 
-      - name: 🤖 AI Summarize
+      - name: 🤖 Summarize release
         id: ai_summary
         if: env.GEMINI_API_KEY != ''
         run: |
@@ -68,7 +71,7 @@ jobs:
           Pick the most impactful commit from that specific user and write a short 'MVP Highlight' (1-2 sentences) explaining why it was their best contribution.
           
           Format the output as:
-          ## 🤖 AI Summary
+          ## What changed on this release?
           [Your categorized summary here]
           
           ## 🌟 MVP Highlight
@@ -146,41 +149,3 @@ jobs:
           echo "> If this version broken something, you can create this [issue](https://github.com/${{ github.repository }}/issues/new?template=report-version-broken.yml). Thanks you." >> release_body.md
           
           gh release edit ${{ github.event.client_payload.new_version || github.event.inputs.new_version || 'nightly-latest' }} --notes-file release_body.md
-
-      - name: 🔄 Update history
-        run: |
-          RESPONSE=$(curl -s https://api.github.com/repos/koiverse/ArchiveTune/commits/dev)
-          LATEST_SHA=$(echo $RESPONSE | jq -r '.sha')
-          MESSAGE=$(echo $RESPONSE | jq -r '.commit.message')
-          
-          mkdir -p history
-          
-          if [ -f history/commit.json ]; then
-             jq --arg sha "$LATEST_SHA" --arg msg "$MESSAGE" '.commit.sha = $sha | .commit.message = $msg' history/commit.json > tmp.json && mv tmp.json history/commit.json
-          else
-             echo "{\"commit\": {\"sha\": \"$LATEST_SHA\", \"message\": \"$MESSAGE\", \"repository\": \"koiverse/ArchiveTune\", \"branch\": \"dev\"}}" > history/commit.json
-          fi
-
-      - name: 📤 Commit and push
-        run: |
-          git config --global user.name '${{ github.actor }}'
-          git config --global user.email '${{ github.actor }}@users.noreply.github.com'
-          
-          # Check if there are changes to commit
-          if git diff --quiet && git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-          
-          SHA_7CHARS=$(jq -r '.commit.sha' history/commit.json | cut -c1-7)
-          
-          git add history/commit.json
-          git commit -m "chore: update history pointer to $SHA_7CHARS"
-          
-          # Pull latest changes to avoid conflicts
-          git pull --rebase origin ${{ github.ref_name }} || git pull --rebase origin main
-          
-          # Push changes
-          git push origin HEAD:${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}

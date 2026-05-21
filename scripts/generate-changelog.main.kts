@@ -13,18 +13,10 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import kotlin.system.exitProcess
-
-// --- Data Models ---
-data class CommitInfo(
-    val sha: String,
-    val message: String,
-    val repository: String,
-    val branch: String
-)
-
-data class History(val commit: CommitInfo)
 
 // --- Global Instances ---
 val gson = Gson()
@@ -37,8 +29,6 @@ fun log(message: String) {
     println(message)
     logOutput.append(message).append("\n")
 }
-
-// --- Helper Functions ---
 
 fun fetch(url: String): String {
     val request = HttpRequest.newBuilder()
@@ -54,40 +44,12 @@ fun fetch(url: String): String {
     return response.body()
 }
 
-fun fetchLatestSha(owner: String, repo: String, branch: String): String {
-    val url = "https://api.github.com/repos/$owner/$repo/branches/$branch"
+fun fetchCommits(owner: String, repo: String, branch: String, since: String, until: String): JsonArray {
+    // We use the commits API with since and until parameters
+    val url = "https://api.github.com/repos/$owner/$repo/commits?sha=$branch&since=$since&until=$until"
+    log("Fetching commits from: $url")
     val json = fetch(url)
-    val data = gson.fromJson(json, JsonObject::class.java)
-    
-    if (!data.has("commit") || data.get("commit").isJsonNull) {
-        throw RuntimeException("No 'commit' field in branch API response for $owner/$repo/$branch")
-    }
-    
-    val commitObj = data.getAsJsonObject("commit")
-    if (!commitObj.has("sha") || commitObj.get("sha").isJsonNull) {
-        throw RuntimeException("No 'sha' field in commit object for $owner/$repo/$branch")
-    }
-    
-    return commitObj.get("sha").asString
-}
-
-fun fetchCommits(owner: String, repo: String, sinceSha: String, untilSha: String): JsonArray {
-    val url = "https://api.github.com/repos/$owner/$repo/compare/$sinceSha...$untilSha"
-    val json = fetch(url)
-    val data = gson.fromJson(json, JsonObject::class.java)
-    
-    if (!data.has("commits")) {
-        log("Warning: No 'commits' field in API response")
-        return JsonArray()
-    }
-    
-    val commits = data.get("commits")
-    if (commits.isJsonNull) {
-        log("Warning: 'commits' field is null in API response")
-        return JsonArray()
-    }
-    
-    return commits.asJsonArray
+    return gson.fromJson(json, JsonArray::class.java)
 }
 
 fun formatChangelog(commits: JsonArray, logOutput: String): String {
@@ -98,7 +60,7 @@ fun formatChangelog(commits: JsonArray, logOutput: String): String {
         return buildString {
             append("## ✨ Changelog\n")
             append("\n")
-            append("No new commits found... Wait the hold up? Huh? No commit found but why this release still create?\n")
+            append("No new commits found for this time period.\n")
             append("\n")
             append("## 📃 Debug Output\n")
             append("\n")
@@ -108,9 +70,8 @@ fun formatChangelog(commits: JsonArray, logOutput: String): String {
         }
     }
     
-    // The GitHub API returns the commit order from oldest to newest in the compare view.
-    // We reverse the order to display the newest commit at the top.
-    val commitList = commits.map { it.asJsonObject }.reversed()
+    // GitHub API returns commits in reverse chronological order (newest first)
+    val commitList = commits.map { it.asJsonObject }
 
     // Date and time format
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -121,25 +82,9 @@ fun formatChangelog(commits: JsonArray, logOutput: String): String {
 
     for (commit in commitList) {
         try {
-            // Safely get SHA
-            if (!commit.has("sha") || commit.get("sha").isJsonNull) {
-                log("Warning: Commit without SHA found, skipping")
-                continue
-            }
             val sha = commit.get("sha").asString
-            
-            // Safely get commit details
-            if (!commit.has("commit") || commit.get("commit").isJsonNull) {
-                log("Warning: Commit without details found (SHA: $sha), skipping")
-                continue
-            }
             val commitDetails = commit.getAsJsonObject("commit")
             
-            // Get the first line of the commit message with null check
-            if (!commitDetails.has("message") || commitDetails.get("message").isJsonNull) {
-                log("Warning: Commit without message (SHA: $sha), skipping")
-                continue
-            }
             var message = commitDetails.get("message").asString
             if (message.isEmpty()) {
                 message = "(no message)"
@@ -161,14 +106,12 @@ fun formatChangelog(commits: JsonArray, logOutput: String): String {
                     if (authorObj.has("login") && !authorObj.get("login").isJsonNull) {
                         authorObj.get("login").asString
                     } else {
-                        // Fallback to commit details author
                         getCommitAuthorName(commitDetails)
                     }
                 } else {
                     getCommitAuthorName(commitDetails)
                 }
             } catch (e: Exception) {
-                log("Warning: Error getting author for commit $sha: ${e.message}")
                 "Unknown"
             }
 
@@ -177,19 +120,10 @@ fun formatChangelog(commits: JsonArray, logOutput: String): String {
 
             // Format date and time
             val date = try {
-                if (!commitDetails.has("author") || commitDetails.get("author").isJsonNull) {
-                    "Unknown Date"
-                } else {
-                    val commitAuthor = commitDetails.getAsJsonObject("author")
-                    if (!commitAuthor.has("date") || commitAuthor.get("date").isJsonNull) {
-                        "Unknown Date"
-                    } else {
-                        val dateStr = commitAuthor.get("date").asString
-                        dateFormatter.format(Instant.parse(dateStr))
-                    }
-                }
+                val commitAuthor = commitDetails.getAsJsonObject("author")
+                val dateStr = commitAuthor.get("date").asString
+                dateFormatter.format(Instant.parse(dateStr))
             } catch (e: Exception) {
-                log("Warning: Error parsing date for commit $sha: ${e.message}")
                 "Unknown Date"
             }
 
@@ -197,7 +131,6 @@ fun formatChangelog(commits: JsonArray, logOutput: String): String {
             changelogEntries.append("- `$date`: [`${sha.take(7)}`](https://github.com/koiverse/ArchiveTune/commit/$sha) - **\"$message\"** by (@$author)\n")
         } catch (e: Exception) {
             log("Warning: Error processing commit: ${e.message}")
-            e.printStackTrace()
             continue
         }
     }
@@ -250,120 +183,31 @@ fun getCommitAuthorName(commitDetails: JsonObject): String {
 
 fun main() {
     try {
-        var lastSha: String? = null
-        var repoPath: String? = null
-        var branch: String? = null
-
-        // 1. Check environment variables first
-        if (System.getenv("LAST_SHA") != null) {
-            log("Reading commit info from environment variables...")
-            lastSha = System.getenv("LAST_SHA")
-            repoPath = System.getenv("LAST_REPO") ?: "koiverse/ArchiveTune"
-            branch = System.getenv("LAST_BRANCH") ?: "dev"
-        } else {
-            // 2. If there is no environment, read the history/commit.json file.
-            val historyFile = File("history/commit.json")
-            
-            // Check the GITHUB_ACTIONS environment variable to ensure the logic matches the old file.
-            if (System.getenv("GITHUB_ACTIONS") != null) {
-                log("Reading commit info from history/commit.json...")
-                if (historyFile.exists()) {
-                    try {
-                        val historyData = historyFile.readText()
-                        if (historyData.trim().isEmpty()) {
-                            System.err.println("Error: history/commit.json is empty")
-                            exitProcess(1)
-                        }
-                        val history = gson.fromJson(historyData, History::class.java)
-                        
-                        if (history == null || history.commit == null) {
-                            System.err.println("Error: Invalid history file structure")
-                            exitProcess(1)
-                        }
-                        
-                        lastSha = history.commit.sha
-                        repoPath = history.commit.repository
-                        branch = history.commit.branch
-                        
-                        log("Last commit: $lastSha")
-                        log("Repository: $repoPath")
-                        log("Branch: $branch")
-                    } catch (e: Exception) {
-                        System.err.println("Error: Failed to parse history/commit.json - ${e.message}")
-                        e.printStackTrace()
-                        exitProcess(1)
-                    }
-                } else {
-                    System.err.println("Error: history/commit.json file not found")
-                    exitProcess(1)
-                }
-            } else {
-                // Fallback for local developers if needed.
-                log("Not running in GitHub Actions, skipping changelog generation")
-                return
-            }
-        }
-
-        // Unwrap nullable values
-        if (lastSha == null || repoPath == null || branch == null) {
-            System.err.println("Error: Missing required information (SHA/Repo/Branch)")
-            exitProcess(1)
-        }
-
-        // Validate repository path format
+        val repoPath = System.getenv("REPO_PATH") ?: "koiverse/ArchiveTune"
+        val branch = System.getenv("BRANCH") ?: "dev"
+        
         if (!repoPath.contains("/")) {
             System.err.println("Error: Invalid repository path format: $repoPath (expected: owner/repo)")
             exitProcess(1)
         }
-        
         val (owner, repoName) = repoPath.split("/")
+
+        // Calculate UTC 0 dates
+        val now = ZonedDateTime.now(ZoneId.of("UTC"))
+        val untilDate = now.truncatedTo(ChronoUnit.DAYS) // Today 00:00 UTC
+        val sinceDate = untilDate.minusDays(1) // Yesterday 00:00 UTC
         
-        // Get the latest SHA from remote
-        log("Fetching latest commit from GitHub API...")
-        val latestSha = try {
-            fetchLatestSha(owner, repoName, branch)
-        } catch (e: Exception) {
-            System.err.println("Error: Failed to fetch latest SHA from GitHub - ${e.message}")
-            e.printStackTrace()
-            exitProcess(1)
-        }
+        val isoFormatter = DateTimeFormatter.ISO_INSTANT
+        val since = isoFormatter.format(sinceDate.toInstant())
+        val until = isoFormatter.format(untilDate.toInstant())
 
-        log("Comparing from $lastSha to $latestSha")
+        log("Generating changelog for $repoPath ($branch)")
+        log("Time period (UTC 0): $since to $until")
 
-        // If there are no changes
-        if (lastSha == latestSha) {
-            log("No new commits found.")
-            val changelog = formatChangelog(JsonArray(), logOutput.toString())
-            File("changelog.md").writeText(changelog)
-            return
-        }
-
-        // Get the commit list and create a changelog.
+        // Get the commit list
         log("Fetching commits from GitHub API...")
-        
-        // Determine the correct order for comparison
-        // The GitHub compare API uses 'base...head' format where:
-        // - If base is behind head: status = "ahead", ahead_by = number of commits
-        // - If base is ahead of head: status = "behind", behind_by = number of commits
-        // This handles cases where the branch may have been force-pushed
         val commits = try {
-            // Check which direction to compare
-            val compareUrl = "https://api.github.com/repos/$owner/$repoName/compare/$lastSha...$latestSha"
-            val testJson = fetch(compareUrl)
-            val testData = gson.fromJson(testJson, JsonObject::class.java)
-            val status = if (testData.has("status")) testData.get("status").asString else "unknown"
-            val totalCommits = if (testData.has("total_commits")) testData.get("total_commits").asInt else 0
-            
-            if (status == "ahead" || (status == "diverged" && totalCommits > 0)) {
-                // lastSha is older than latestSha - use normal order
-                fetchCommits(owner, repoName, lastSha, latestSha)
-            } else if (status == "behind" || totalCommits == 0) {
-                // lastSha is newer than latestSha - reverse the order (branch was force-pushed)
-                fetchCommits(owner, repoName, latestSha, lastSha)
-            } else {
-                // Unknown status, try normal order first
-                fetchCommits(owner, repoName, lastSha, latestSha)
-            }
+            fetchCommits(owner, repoName, branch, since, until)
         } catch (e: Exception) {
             System.err.println("Error: Failed to fetch commits from GitHub - ${e.message}")
             e.printStackTrace()
@@ -376,14 +220,8 @@ fun main() {
         val changelog = formatChangelog(commits, logOutput.toString())
         
         log("Writing changelog to file...")
-        try {
-            File("changelog.md").writeText(changelog)
-            log("✅ Changelog generated successfully: changelog.md")
-        } catch (e: Exception) {
-            System.err.println("Error: Failed to write changelog.md - ${e.message}")
-            e.printStackTrace()
-            exitProcess(1)
-        }
+        File("changelog.md").writeText(changelog)
+        log("✅ Changelog generated successfully: changelog.md")
 
     } catch (e: Exception) {
         System.err.println("Error: Unexpected error generating changelog - ${e.message}")
@@ -392,5 +230,4 @@ fun main() {
     }
 }
 
-// Run the main function
 main()

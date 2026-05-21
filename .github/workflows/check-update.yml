@@ -5,6 +5,7 @@ on:
     workflows: ["Trigger Workflows"]
     types:
       - completed
+  workflow_dispatch: 
 
 jobs:
   check:
@@ -13,50 +14,34 @@ jobs:
       contents: write
     steps:
       - name: 🔎 Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
 
-      - name: 📃 Get current SHA from history
-        id: current_sha
+      - name: 🔎 Check for new commits in the last 24h
+        id: check_commits
         run: |
-          if [ -f history/commit.json ]; then
-            SHA=$(jq -r '.commit.sha' history/commit.json)
+          # Calculate since date (Yesterday 00:00 UTC)
+          SINCE=$(date -u -d "yesterday 00:00" +"%Y-%m-%dT%H:%M:%SZ")
+          # Calculate until date (Today 00:00 UTC)
+          UNTIL=$(date -u -d "00:00" +"%Y-%m-%dT%H:%M:%SZ")
+          
+          echo "Checking commits from $SINCE to $UNTIL"
+          
+          RESPONSE=$(curl -s "https://api.github.com/repos/koiverse/ArchiveTune/commits?sha=dev&since=$SINCE&until=$UNTIL")
+          COUNT=$(echo "$RESPONSE" | jq '. | length')
+          
+          echo "Found $COUNT commits."
+          
+          if [ "$COUNT" -gt 0 ]; then
+            echo "SKIP=false" >> $GITHUB_OUTPUT
           else
-            SHA="none"
-          fi
-          echo "CURRENT_SHA=$SHA" >> $GITHUB_ENV
-          echo "Current SHA is: $SHA"
-
-      - name: 🔎 Get latest commit info from upstream
-        run: |
-          RESPONSE=$(curl -s https://api.github.com/repos/koiverse/ArchiveTune/commits/dev)
-          
-          LATEST_SHA=$(echo $RESPONSE | jq -r '.sha')
-          MESSAGE=$(echo $RESPONSE | jq -r '.commit.message')
-          
-          echo "LATEST_SHA=$LATEST_SHA" >> $GITHUB_ENV
-          
-          {
-            echo "MESSAGE<<EOF"
-            echo "$MESSAGE"
-            echo "EOF"
-          } >> $GITHUB_ENV
-
-      - name: 🔄 Compare SHAs
-        run: |
-          echo "Comparing Local: $CURRENT_SHA with Remote: $LATEST_SHA"
-          if [ "$CURRENT_SHA" == "$LATEST_SHA" ]; then
-            echo "There are no new commits, so feel free to enjoy your day."
-            echo "SKIP=true" >> $GITHUB_ENV
-          else
-            echo "With this new commit, it's time to get to work!"
-            echo "SKIP=false" >> $GITHUB_ENV
+            echo "SKIP=true" >> $GITHUB_OUTPUT
           fi
 
       - name: 📞 Trigger nightly build
-        if: env.SKIP == 'false'
+        if: steps.check_commits.outputs.SKIP == 'false' || github.event_name == 'workflow_dispatch'
         run: |
           curl -X POST \
             -H "Authorization: token ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type": "trigger-nightly", "client_payload": {"message": "Update from upstream"}}'
+            -d '{"event_type": "trigger-nightly", "client_payload": {"message": "Daily update from upstream"}}'
