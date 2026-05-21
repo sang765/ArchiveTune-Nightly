@@ -60,6 +60,9 @@ jobs:
         id: ai_summary
         if: env.GEMINI_API_KEY != ''
         run: |
+          echo "Checking available models..."
+          curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY" | jq -r '.models[].name' || echo "Failed to list models"
+          
           # Escape changelog for JSON
           ESCAPED_CHANGELOG=$(jq -Rs . < changelog.md)
           
@@ -72,7 +75,8 @@ jobs:
           $ESCAPED_CHANGELOG"
           
           # Call Gemini API
-          RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
+          echo "Calling Gemini API..."
+          RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
             -H 'Content-Type: application/json' \
             -d "{
               \"contents\": [{
@@ -84,7 +88,9 @@ jobs:
           AI_TEXT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // empty')
           
           if [ -z "$AI_TEXT" ] || [ "$AI_TEXT" = "null" ]; then
-            echo "AI summarization failed or returned empty. Response: $RESPONSE"
+            echo "AI summarization failed or returned empty."
+            echo "Full API Response for debugging:"
+            echo "$RESPONSE" | jq .
             echo "summary=" >> $GITHUB_OUTPUT
           else
             {
