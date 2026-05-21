@@ -71,14 +71,37 @@ jobs:
           Commits:
           $ESCAPED_CHANGELOG"
           
-          # Call Gemini API
-          RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GEMINI_API_KEY" \
-            -H 'Content-Type: application/json' \
-            -d "{
-              \"contents\": [{
-                \"parts\":[{\"text\": $(echo "$PROMPT" | jq -Rs .)}]
-              }]
-            }")
+          # Call Gemini API with retry logic
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          WAIT_TIME=15
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GEMINI_API_KEY" \
+              -H 'Content-Type: application/json' \
+              -d "{
+                \"contents\": [{
+                  \"parts\":[{\"text\": $(echo "$PROMPT" | jq -Rs .)}]
+                }]
+              }")
+            
+            # Check for error in response
+            ERROR=$(echo "$RESPONSE" | jq -r '.error.message // empty')
+            
+            if [ -z "$ERROR" ]; then
+              break
+            fi
+            
+            if echo "$RESPONSE" | jq -e '.error.code == 429' > /dev/null; then
+              echo "Rate limit exceeded (429). Retrying in ${WAIT_TIME}s... (Attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
+              sleep $WAIT_TIME
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              WAIT_TIME=$((WAIT_TIME * 2))
+            else
+              echo "API Error: $ERROR"
+              break
+            fi
+          done
           
           # Extract text from response
           AI_TEXT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // empty')
