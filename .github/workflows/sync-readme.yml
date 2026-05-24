@@ -92,13 +92,7 @@ jobs:
 
           if [ -n "$RELEASE_JSON" ]; then
             # Find the universal APK asset
-            DL_URL=$(echo "$RELEASE_JSON" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-for asset in data.get('assets', []):
-    if asset['name'] == 'app-mobile-universal-nightly.apk':
-        print(asset['url'])
-" 2>/dev/null)
+            DL_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name == "app-mobile-universal-nightly.apk") | .url' 2>/dev/null || true)
 
             if [ -n "$DL_URL" ]; then
               echo "Downloading universal APK from release..."
