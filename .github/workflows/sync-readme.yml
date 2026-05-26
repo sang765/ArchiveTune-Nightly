@@ -87,6 +87,8 @@ jobs:
           
           # Find old GIF counter line and replace with new one
           OLD_GIF="${{ steps.read-current.outputs.current_gif }}"
+          echo "🔄 Replacing old GIF: $OLD_GIF"
+          echo "🆕 With new GIF: $GIF_URLS"
           if [ -n "$OLD_GIF" ]; then
             sed -i "s|$OLD_GIF|$GIF_URLS|g" README.md
           fi
@@ -139,6 +141,10 @@ jobs:
           # Find old SHA-1 and SHA-256 fingerprints in README and replace with new ones
           OLD_SHA1="${{ steps.read-current.outputs.current_sha1 }}"
           OLD_SHA256="${{ steps.read-current.outputs.current_sha256 }}"
+          echo "🔄 Replacing old SHA1: $OLD_SHA1"
+          echo "🆕 With new SHA1: $SHA1"
+          echo "🔄 Replacing old SHA256: $OLD_SHA256"
+          echo "🆕 With new SHA256: $SHA256"
 
           if [ -n "$OLD_SHA1" ]; then
             sed -i "s|$OLD_SHA1|$SHA1|g" README.md
