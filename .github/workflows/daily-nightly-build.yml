@@ -49,7 +49,7 @@ jobs:
       - name: 📃 Generate changelog
         id: changelog
         run: |
-          CHANGELOG=$(git log --pretty=format="- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
+          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "## Changelog" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
@@ -139,35 +139,16 @@ jobs:
           sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases?per_page=$perPage|https://api.github.com/repos/${{ github.repository }}/releases?per_page=$perPage|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: 🔨 Build Release APK
+        shell: bash
         run: |
-          max_attempts=3
-          attempt=1
-          while [ $attempt -le $max_attempts ]; do
-            echo "================================="
-            echo "🔄 Attempt $attempt of $max_attempts"
-            echo "================================="
-            if ./gradlew ${{ steps.variant.outputs.gradle_task }}; then
-              echo "==============="
-              echo "✅ Build succeeded"
-              echo "==============="
-              exit 0
-            else
-              echo "================================="
-              echo "❌ Build failed with exit code $?"
-              echo "================================="
-              if [ $attempt -eq $max_attempts ]; then
-                echo "================================="
-                echo "☹️ All $max_attempts attempts failed"
-                echo "================================="
-                exit 1
-              fi
-              echo "========================"
-              echo "⏳ Retrying in 5 seconds..."
-              sleep 5
-              echo "========================"
-              attempt=$((attempt + 1))
-            fi
-          done
+          GRADLE_TASK="${{ steps.variant.outputs.gradle_task }}"
+          ABI="${{ matrix.abi }}"
+          
+          if [ "$ABI" = "armeabi" ] || [ "$ABI" = "x86" ]; then
+            ./gradlew "$GRADLE_TASK" 2>&1 | python3 -c "import re,sys;p=re.compile(r'^(WARNING: )?\[CXX5202\] This app only has 32-bit \[(armeabi-v7a|x86)\] native libraries\. Beginning August 1, 2019 Google Play store requires that all apps that include native libraries must provide 64-bit versions\. For more information, visit https://g\.co/64-bit-requirement\$');[sys.stdout.write(l) for l in sys.stdin if not p.match(l.rstrip())]"
+          else
+            ./gradlew "$GRADLE_TASK"
+          fi
         env:
           PULL_REQUEST: 'false'
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -204,7 +185,10 @@ jobs:
                 -path "*/${DEVICE}/${ABI}/release/output-metadata.json" -o \
                 -path "*/${DEVICE}${ABI_CAP}/release/output-metadata.json" -o \
                 -path "*/${DEVICE_CAP}${ABI_CAP}/release/output-metadata.json" -o \
-                -path "*/${ABI}/${DEVICE}/release/output-metadata.json" \
+                -path "*/${ABI}/${DEVICE}/release/output-metadata.json" -o \
+                -path "*/${DEVICE}/${ABI}/*/release/output-metadata.json" -o \
+                -path "*/${DEVICE}${ABI_CAP}/*/release/output-metadata.json" -o \
+                -path "*/${DEVICE_CAP}${ABI_CAP}/*/release/output-metadata.json" \
               \) \
               | head -n 1 || true
           )"
