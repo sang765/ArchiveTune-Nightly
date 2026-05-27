@@ -49,7 +49,8 @@ jobs:
       - name: 📃 Generate changelog
         id: changelog
         run: |
-          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="1 day ago" --no-merges)
+          SINCE=$(date -u -d 'yesterday 00:00' +'%Y-%m-%dT%H:%M:%SZ')
+          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="$SINCE" --no-merges)
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "## Changelog" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT

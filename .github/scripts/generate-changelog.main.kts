@@ -192,10 +192,10 @@ fun main() {
         }
         val (owner, repoName) = repoPath.split("/")
 
-        // Calculate UTC 0 dates
+        // Calculate UTC 0 dates: yesterday 00:00 UTC → now
         val now = ZonedDateTime.now(ZoneId.of("UTC"))
-        val untilDate = now.truncatedTo(ChronoUnit.DAYS) // Today 00:00 UTC
-        val sinceDate = untilDate.minusDays(1) // Yesterday 00:00 UTC
+        val sinceDate = now.minusDays(1).truncatedTo(ChronoUnit.DAYS) // Yesterday 00:00 UTC
+        val untilDate = now // Current datetime UTC
         
         val isoFormatter = DateTimeFormatter.ISO_INSTANT
         val since = isoFormatter.format(sinceDate.toInstant())
