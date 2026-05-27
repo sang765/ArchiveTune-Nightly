@@ -158,27 +158,18 @@ jobs:
 
           echo "✅ Updated certificate fingerprints in README.md"
 
-      - name: 🔄 Check for changes and commit
+      - name: 🔄 Commit and push
         run: |
-          # Ensure git user is configured (required for commits)
           git config --global user.name '${{ github.actor }}' || true
           git config --global user.email '${{ github.actor }}@users.noreply.github.com' || true
 
-          # Stage the README.md file
           git add README.md
 
-          # Commit with descriptive message (include timestamp for uniqueness)
           TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          git commit -m "ci(docs): Sync README.md from workflow run ${TIMESTAMP}" || {
-            echo "Warning: Nothing to commit - file may already be staged";
-            exit 0;
-          }
+          git commit -m "ci(docs): Sync README.md from workflow run ${TIMESTAMP}"
 
-          # Pull with rebase to incorporate remote changes
           git fetch origin main
           git rebase origin/main
-
-          # Push changes to remote with rebase strategy
           git push origin main --force-with-lease
 
           echo "✅ README.md successfully synced and pushed to main branch"
