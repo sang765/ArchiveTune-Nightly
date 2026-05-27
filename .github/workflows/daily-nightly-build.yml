@@ -350,16 +350,15 @@ jobs:
         id: release_body
         run: |
           cat > release_body.md << 'RELEASE_BODY_EOF'
-Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} (UTC +0)**
+          Release **ArchiveTune Nightly** artifact, generated on **${{ steps.date.outputs.date }} (UTC +0)**
 
-${{ steps.ai_summary.outputs.summary }}
+          ${{ steps.ai_summary.outputs.summary }}
 
-${{ steps.changelog.outputs.changelog }}
+          ${{ steps.changelog.outputs.changelog }}
 
-
-> [!NOTE]
-> If this version broken something, you can create this [issue](https://github.com/${{ github.repository }}/issues/new?template=report-version-broken.yml). Thanks you.
-RELEASE_BODY_EOF
+          > [!NOTE]
+          > If this version broken something, you can create this [issue](https://github.com/${{ github.repository }}/issues/new?template=report-version-broken.yml). Thanks you.
+          RELEASE_BODY_EOF
 
       - name: 📦 Create release
         uses: softprops/action-gh-release@v3.0.0
