@@ -166,7 +166,7 @@ jobs:
           git add README.md
 
           TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          git commit -m "ci(docs): Sync README.md from workflow run ${TIMESTAMP}"
+          git commit -m "ci(docs): Sync README.md from workflow run ${TIMESTAMP}" || echo "Nothing new to commit"
 
           git fetch origin main
           git rebase origin/main
