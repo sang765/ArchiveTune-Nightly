@@ -4,11 +4,9 @@ on:
   release:
     types: [published]
   workflow_dispatch: 
-  push:
-
 jobs:
   notify:
-    if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
+    if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check WEBHOOK_URL is set
@@ -75,7 +73,7 @@ jobs:
           - Total message must be under 2000 characters
           - First line must be: \"# ArchiveTune Nightly $VERSION_TITLE has been released\"
           - Use ONLY Discord-compatible Markdown (https://support.discord.com/hc/en-us/articles/210298617)
-          - Supported: **bold**, *italic*, __underline__, ~~strikethrough~~, ### headings, -/* bullet lists, 1. numbered lists, `inline code`, ```code blocks```, > blockquotes, [masked links](url), ||spoilers||, -# subtext
+          - Supported: **bold**, *italic*, __underline__, ~~strikethrough~~, ### headings, -/* bullet lists, 1. numbered lists, inline code with single backticks, code blocks with triple backticks, > blockquotes, [masked links](url), ||spoilers||, -# subtext
           - Do NOT use: --- horizontal rules, - [ ] checkboxes, HTML tags, tables, details/summary, footnotes, or any other non-Discord Markdown
           - Include a link to the release: $RELEASE_URL
           - Include this role mention somewhere in the message: $MENTION_ROLE
