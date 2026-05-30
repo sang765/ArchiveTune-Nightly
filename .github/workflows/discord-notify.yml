@@ -4,10 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch: 
+  push:
 
 jobs:
   notify:
-    if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check WEBHOOK_URL is set
@@ -128,10 +129,11 @@ jobs:
           fi
 
       - name: Send Discord notification
+        env:
+          AI_MESSAGE: ${{ steps.ai_message.outputs.generated_message }}
         run: |
           VERSION_TITLE="${{ steps.get_release.outputs.version_title }}"
           RELEASE_TAG="${{ steps.get_release.outputs.release_tag }}"
-          AI_MESSAGE="${{ steps.ai_message.outputs.generated_message }}"
           
           if [ -n "$AI_MESSAGE" ]; then
             MESSAGE="$AI_MESSAGE"
