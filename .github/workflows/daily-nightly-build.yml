@@ -53,7 +53,7 @@ jobs:
         id: changelog
         run: |
           SINCE=$(date -u -d 'yesterday 00:00' +'%Y-%m-%dT%H:%M:%SZ')
-          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/koiverse/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="$SINCE" --no-merges)
+          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/ArchiveTuneApp/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="$SINCE" --no-merges)
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "## Changelog" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
@@ -123,7 +123,7 @@ jobs:
 
       - name: Update app name and package for nightly
         run: |
-          sed -i 's/applicationId = "moe.koiverse.archivetune"/applicationId = "moe.koiverse.archivetune.nightly"/' app/build.gradle.kts
+          sed -i 's/applicationId = "moe.rukamori.archivetune"/applicationId = "moe.rukamori.archivetune.nightly"/' app/build.gradle.kts
           sed -i 's/ArchiveTune Debug/ArchiveTune Nightly Debug/' app/src/debug/res/values/app_name.xml
           sed -i 's/ArchiveTune/ArchiveTune Nightly/' app/src/main/res/values/app_name.xml
 
@@ -136,9 +136,9 @@ jobs:
 
       - name: Update update check URLs for fork
         run: |
-          sed -i 's|https://github.com/koiverse/ArchiveTune/releases/latest/download/|https://github.com/${{ github.repository }}/releases/latest/download/|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+          sed -i 's|https://github.com/ArchiveTuneApp/ArchiveTune/releases/latest/download/|https://github.com/${{ github.repository }}/releases/latest/download/|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
           sed -i 's/app-${BuildConfig.DEVICE}-${BuildConfig.ARCHITECTURE}-release.apk/app-${BuildConfig.DEVICE}-${BuildConfig.ARCHITECTURE}-nightly.apk/' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
-          sed -i 's|https://api.github.com/repos/koiverse/ArchiveTune/releases?per_page=$perPage|https://api.github.com/repos/${{ github.repository }}/releases?per_page=$perPage|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
+          sed -i 's|https://api.github.com/repos/ArchiveTuneApp/ArchiveTune/releases?per_page=$perPage|https://api.github.com/repos/${{ github.repository }}/releases?per_page=$perPage|g' app/src/main/kotlin/moe/koiverse/archivetune/utils/Updater.kt
 
       - name: Build Release APK
         shell: bash
@@ -269,7 +269,7 @@ jobs:
       - name: Generate changelog
         run: kotlin .github/scripts/generate-changelog.main.kts
         env:
-          REPO_PATH: "koiverse/ArchiveTune"
+          REPO_PATH: "ArchiveTuneApp/ArchiveTune"
           BRANCH: "dev"
 
       - name: Date
