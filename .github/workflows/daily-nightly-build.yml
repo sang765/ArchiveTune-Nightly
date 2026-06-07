@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          repository: koiverse/ArchiveTune
+          repository: ArchiveTuneApp/ArchiveTune
           ref: dev
           token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
 
