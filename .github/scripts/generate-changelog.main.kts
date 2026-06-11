@@ -52,6 +52,17 @@ fun fetchCommits(owner: String, repo: String, branch: String, since: String, unt
     return gson.fromJson(json, JsonArray::class.java)
 }
 
+fun fetchCommitsSinceSha(owner: String, repo: String, branch: String, sha: String): JsonArray {
+    val url = "https://api.github.com/repos/$owner/$repo/compare/$sha...$branch"
+    log("Fetching commits from compare API: $url")
+    val json = fetch(url)
+    val root = gson.fromJson(json, JsonObject::class.java)
+    if (root.has("commits")) {
+        return root.getAsJsonArray("commits")
+    }
+    throw RuntimeException("No commits field in compare response: $json")
+}
+
 fun formatChangelog(commits: JsonArray, logOutput: String): String {
     val sb = StringBuilder()
     
@@ -192,22 +203,29 @@ fun main() {
         }
         val (owner, repoName) = repoPath.split("/")
 
-        // Calculate UTC 0 dates: yesterday 00:00 UTC → now
+        val sinceSha = System.getenv("SINCE_SHA") ?: ""
+
+        // Calculate UTC 0 dates: yesterday 00:00 UTC → now (fallback)
         val now = ZonedDateTime.now(ZoneId.of("UTC"))
         val sinceDate = now.minusDays(1).truncatedTo(ChronoUnit.DAYS) // Yesterday 00:00 UTC
         val untilDate = now // Current datetime UTC
-        
+
         val isoFormatter = DateTimeFormatter.ISO_INSTANT
         val since = isoFormatter.format(sinceDate.toInstant())
         val until = isoFormatter.format(untilDate.toInstant())
 
         log("Generating changelog for $repoPath ($branch)")
-        log("Time period (UTC 0): $since to $until")
 
         // Get the commit list
         log("Fetching commits from GitHub API...")
         val commits = try {
-            fetchCommits(owner, repoName, branch, since, until)
+            if (sinceSha.isNotBlank()) {
+                log("Using SINCE_SHA: $sinceSha")
+                fetchCommitsSinceSha(owner, repoName, branch, sinceSha)
+            } else {
+                log("No SINCE_SHA provided. Using date range (UTC 0): $since to $until")
+                fetchCommits(owner, repoName, branch, since, until)
+            }
         } catch (e: Exception) {
             System.err.println("Error: Failed to fetch commits from GitHub - ${e.message}")
             e.printStackTrace()

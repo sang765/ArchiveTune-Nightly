@@ -20,6 +20,7 @@ jobs:
       changelog: ${{ steps.changelog.outputs.changelog }}
       date: ${{ steps.date.outputs.date }}
       time: ${{ steps.time.outputs.time }}
+      since_sha: ${{ steps.last_release.outputs.SINCE_SHA }}
     strategy:
       matrix:
         include:
@@ -49,11 +50,29 @@ jobs:
           ref: dev
           token: ${{ secrets.GITHUB_TOKEN || secrets.PAT_TOKEN }}
 
+      - name: Get last release info
+        id: last_release
+        run: |
+          RESPONSE=$(curl -s -H "Authorization: token ${{ github.token }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+          BODY=$(echo "$RESPONSE" | jq -r '.body // ""')
+          if [ -n "$BODY" ] && [ "$BODY" != "null" ]; then
+            SHA=$(echo "$BODY" | awk '/^## ✨ Changelog$/ {found=1; next} found && /commit\// {match($0, /commit\/([a-f0-9]+)/, a); print a[1]; exit}')
+            echo "SINCE_SHA=$SHA" >> $GITHUB_OUTPUT
+          else
+            echo "SINCE_SHA=" >> $GITHUB_OUTPUT
+          fi
+
       - name: Changelog
         id: changelog
         run: |
-          SINCE=$(date -u -d 'yesterday 00:00' +'%Y-%m-%dT%H:%M:%SZ')
-          CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/ArchiveTuneApp/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="$SINCE" --no-merges)
+          SINCE_SHA="${{ steps.last_release.outputs.SINCE_SHA }}"
+          if [ -n "$SINCE_SHA" ]; then
+            CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/ArchiveTuneApp/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" "${SINCE_SHA}..HEAD" --no-merges)
+          else
+            SINCE=$(date -u -d 'yesterday 00:00' +'%Y-%m-%dT%H:%M:%SZ')
+            CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/ArchiveTuneApp/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="$SINCE" --no-merges)
+          fi
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "## Changelog" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
@@ -266,6 +285,7 @@ jobs:
         env:
           REPO_PATH: "ArchiveTuneApp/ArchiveTune"
           BRANCH: "dev"
+          SINCE_SHA: ${{ needs.build.outputs.since_sha }}
 
       - name: Date
         id: date
