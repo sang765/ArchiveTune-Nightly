@@ -17,7 +17,6 @@ jobs:
     outputs:
       new_version: ${{ env.NEW_VERSION }}
       new_version_code: ${{ env.NEW_VERSION_CODE }}
-      changelog: ${{ steps.changelog.outputs.changelog }}
       date: ${{ steps.date.outputs.date }}
       time: ${{ steps.time.outputs.time }}
       since_sha: ${{ steps.last_release.outputs.SINCE_SHA }}
@@ -62,22 +61,6 @@ jobs:
           else
             echo "SINCE_SHA=" >> $GITHUB_OUTPUT
           fi
-
-      - name: Changelog
-        id: changelog
-        run: |
-          SINCE_SHA="${{ steps.last_release.outputs.SINCE_SHA }}"
-          if [ -n "$SINCE_SHA" ]; then
-            CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/ArchiveTuneApp/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" "${SINCE_SHA}..HEAD" --no-merges)
-          else
-            SINCE=$(date -u -d 'yesterday 00:00' +'%Y-%m-%dT%H:%M:%SZ')
-            CHANGELOG=$(git log --pretty=format:"- ([%h](https://github.com/ArchiveTuneApp/ArchiveTune/commit/%H)): **\"%s\"** by **@%an**" --since="$SINCE" --no-merges)
-          fi
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "## Changelog" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Date
         id: date
