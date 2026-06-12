@@ -4,13 +4,8 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Daily Nightly Build"]
-    types:
-      - completed
 jobs:
   notify:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check WEBHOOK_URL is set
@@ -22,11 +17,7 @@ jobs:
 
       - name: Wait for release to be available
         run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            sleep 30
-          else
-            sleep 3
-          fi
+          sleep 3
 
       - name: Get latest release
         id: get_release
