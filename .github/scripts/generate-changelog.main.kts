@@ -16,6 +16,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import kotlin.random.Random
 import kotlin.system.exitProcess
 
 // --- Global Instances ---
@@ -37,11 +38,35 @@ fun fetch(url: String): String {
         .GET()
         .build()
 
-    val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-    if (response.statusCode() !in 200..299) {
-        throw RuntimeException("Failed to fetch: $url - Status: ${response.statusCode()} - Body: ${response.body()}")
+    while (true) {
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        val code = response.statusCode()
+
+        if (code in 200..299) {
+            return response.body()
+        }
+
+        if (code == 403 || code == 429) {
+            val retryAfter = response.headers().firstValue("Retry-After").orElse(null)
+            val resetEpoch = response.headers().firstValue("X-RateLimit-Reset").orElse(null)
+
+            val waitSeconds = when {
+                retryAfter != null -> retryAfter.toLong()
+                resetEpoch != null -> resetEpoch.toLong() - Instant.now().epochSecond
+                else -> null
+            }
+
+            val baseDelay = (waitSeconds?.coerceAtLeast(1L) ?: 5L).toLong()
+            val jitter = Random.nextLong(0, 26L) // up to +25s extra
+            val delay = baseDelay + jitter
+
+            log("Rate limited ($code). Retrying in ${delay}s (base: ${baseDelay}s, jitter: +${jitter}s)...")
+            Thread.sleep(delay * 1000)
+            continue
+        }
+
+        throw RuntimeException("Failed to fetch: $url - Status: $code - Body: ${response.body()}")
     }
-    return response.body()
 }
 
 fun fetchCommits(owner: String, repo: String, branch: String, since: String, until: String): JsonArray {
